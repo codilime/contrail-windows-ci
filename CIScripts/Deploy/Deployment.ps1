@@ -55,6 +55,9 @@ function Install-Artifacts {
         Write-Host "Installing Agent"
         Start-Process msiexec.exe -ArgumentList @("/i", "C:\Artifacts\contrail-vrouter-agent.msi", "/quiet") -Wait
 
+        Write-Host "Starting docker (just for sure)"
+        Start-Service Docker
+
         # Refresh Path
         $Env:Path = [System.Environment]::GetEnvironmentVariable("Path", "Machine")
     }
