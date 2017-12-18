@@ -352,7 +352,6 @@ function Initialize-TestConfiguration {
                 throw "Docker driver was not enabled."
             } else {
                 Write-Host "Docker driver was not enabled, retrying."
-                Stop-ProcessIfExists -Session $Session -ProcessName "contrail-windows-docker"
             }
         } else {
             break;
