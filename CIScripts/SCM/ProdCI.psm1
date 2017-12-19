@@ -1,5 +1,5 @@
+using module ".\Repository\Repo.psm1"
 . $PSScriptRoot\..\Common\DeferExcept.ps1
-. $PSScriptRoot\..\Build\Repository.ps1
 
 function Get-ProductionRepos {
     Param ([Parameter(Mandatory = $true)] [string] $TriggeredProject,
@@ -25,54 +25,25 @@ function Get-ProductionRepos {
     $Repos = @{
         # Windows docker driver is not on gerrit (yet)
         "contrail-windows-docker" = [Repo]::new("https://github.com/Juniper/contrail-windows-docker-driver/",
-                                                "master", "master", "src/github.com/codilime/contrail-windows-docker");
+                                                "master", "src/github.com/codilime/contrail-windows-docker");
 
         # Use staging repo for windowsstubs until merge is done.
         "contrail-windowsstubs" = [Repo]::new("https://github.com/CodiLime/contrail-windowsstubs/",
-                                              "windows", "windows", "windows/");
+                                              "windows", "windows/");
 
         "contrail-build" = [Repo]::new("https://$GerritHost/Juniper/contrail-build",
-                                       $ToolsBranch, "master", "tools/build/");
+                                       $ToolsBranch, "tools/build/");
         "contrail-sandesh" = [Repo]::new("https://$GerritHost/Juniper/contrail-sandesh",
-                                         $SandeshBranch, "master", "tools/sandesh/");
+                                         $SandeshBranch, "tools/sandesh/");
         "contrail-generateDS" = [Repo]::new("https://$GerritHost/Juniper/contrail-generateDS",
-                                            $GenerateDSBranch, "master", "tools/generateDS/");
+                                            $GenerateDSBranch, "tools/generateDS/");
         "contrail-vrouter" = [Repo]::new("https://$GerritHost/Juniper/contrail-vrouter",
-                                         $VRouterBranch, "master", "vrouter/");
+                                         $VRouterBranch, "vrouter/");
         "contrail-controller" = [Repo]::new("https://$GerritHost/Juniper/contrail-controller",
-                                            $ControllerBranch, "master", "controller/")
+                                            $ControllerBranch, "controller/")
     }
     return $Repos
 }
-
-function Merge-GerritPatchset {
-    Param ([Parameter(Mandatory = $true)] [string] $TriggeredProject,
-           [Parameter(Mandatory = $true)] [System.Collections.Hashtable] $Repos,
-           [Parameter(Mandatory = $true)] [string] $Refspec)
-
-    # merge the patchset and exit on merge failure
-
-    $Job.Step("Merging Gerrit patchset", {
-        Push-Location $Repos[$TriggeredProject].Dir
-        DeferExcept({
-            git fetch -q origin $Refspec
-        })
-        DeferExcept({
-            git config user.email "you@example.com"
-        })
-        DeferExcept({
-            git config --global user.name "Your Name"
-        })
-        DeferExcept({
-            git merge FETCH_HEAD
-        })
-        if ($LastExitCode -ne 0) {
-            throw "Patchset merging failed."
-        }
-        Pop-Location
-    })
-}
-
 function Get-GerritProjectName {
     Param ([Parameter(Mandatory = $true)] [string] $ProjectString)
     if ($ProjectString.StartsWith('Juniper/')) {
