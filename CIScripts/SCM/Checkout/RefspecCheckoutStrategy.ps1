@@ -16,16 +16,33 @@ class RefspecCheckoutStrategy : CheckoutStrategy {
     }
 
     Checkout([System.Collections.Hashtable] $Repos) {
-        $this.CloneRepos($Repos)
-        $this.TryMergePatchset($Repos)
+        $Repos.Values.ForEach({
+            $this.CloneZuulRepo($_)
+            $this.FetchZuulRef($_)
+            $this.TryMergePatchset($_)
+        })
     }
 
-    CloneRepos([System.Collections.Hashtable] $Repos) {
-        $Repos.Values.ForEach({ $_.Clone() })
+    CloneZuulRepo() {
+        DeferExcept({
+            git clone --quiet $GIT_ORIGIN/$ZUUL_PROJECT .
+        })
     }
 
-    TryMergePatchset([System.Collections.Hashtable] $Repos) {
-        Push-Location $Repos[$this.TriggeredProject].Dir
+    FetchZuulRef() {
+        DeferExcept({
+            git fetch $ZUUL_URL/$ZUUL_PROJECT $ZUUL_REF
+        })
+        DeferExcept({
+            git checkout FETCH_HEAD
+        })
+        DeferExcept({
+            git reset --hard FETCH_HEAD
+        })
+    }
+
+    TryMergePatchset([Repo] $Repo) {
+        Push-Location $Repo.Dir
         DeferExcept({
             git fetch -q origin $this.Refspec
         })
@@ -43,4 +60,5 @@ class RefspecCheckoutStrategy : CheckoutStrategy {
         }
         Pop-Location
     }
+
 }
