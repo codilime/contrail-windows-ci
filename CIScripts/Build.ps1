@@ -5,9 +5,12 @@ using module ".\SCM\Checkout\CheckoutStrategy.psm1"
 . $PSScriptRoot\Common\Init.ps1
 . $PSScriptRoot\Common\Job.ps1
 . $PSScriptRoot\Build\BuildFunctions.ps1
+. $PSScriptRoot\FrameworkTests\RunFrameworkTests.ps1
 . $PSScriptRoot\SCM\SCM.ps1
 
 $Job = [Job]::new("Build")
+
+RunFrameworkTests
 
 $CheckoutStrat, $Repos = DetermineSCMFromEnv
 

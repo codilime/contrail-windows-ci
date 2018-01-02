@@ -18,10 +18,10 @@ class Repo {
     }
 
     Clone() {
-        [Job]::Get().Step("Cloning $this.Branch:$this.Url into $this.Dir", {
-            DeferExcept({
-                git clone -q -b $this.Branch $this.Url $this.Dir
-            })
+        DeferExcept({
+            Write-Host "Cloning branch $($this.Branch) from $($this.Url)" `
+                       "into $($this.Dir)"
+            git clone -q -b $this.Branch $this.Url $this.Dir
         })
     }
 }

@@ -1,9 +1,7 @@
 using module ".\StagingCI.psm1"
 using module ".\ProdCI.psm1"
 using module ".\Checkout\CheckoutStrategy.psm1"
-
-. $PSScriptRoot\Checkout\RefspecCheckoutStrategy.ps1
-. $PSScriptRoot\Checkout\SimpleCheckoutStrategy.ps1
+using module ".\Checkout\SimpleCheckoutStrategy.psm1"
 
 function DetermineSCMFromEnv() {
     $IsTriggeredByGerrit = Test-Path Env:GERRIT_CHANGE_ID
@@ -23,12 +21,12 @@ function DetermineSCMFromEnv() {
         # request to select github.com/codilime/* repos.
 
         $Repos = Get-StagingRepos -DriverBranch $ENV:DRIVER_BRANCH `
-                                -WindowsstubsBranch $ENV:WINDOWSSTUBS_BRANCH `
-                                -ToolsBranch $Env:TOOLS_BRANCH `
-                                -SandeshBranch $Env:SANDESH_BRANCH `
-                                -GenerateDSBranch $Env:GENERATEDS_BRANCH `
-                                -VRouterBranch $Env:VROUTER_BRANCH `
-                                -ControllerBranch $Env:CONTROLLER_BRANCH
+                                  -WindowsstubsBranch $ENV:WINDOWSSTUBS_BRANCH `
+                                  -ToolsBranch $Env:TOOLS_BRANCH `
+                                  -SandeshBranch $Env:SANDESH_BRANCH `
+                                  -GenerateDSBranch $Env:GENERATEDS_BRANCH `
+                                  -VRouterBranch $Env:VROUTER_BRANCH `
+                                  -ControllerBranch $Env:CONTROLLER_BRANCH
         $CheckoutStrat = [SimpleCheckoutStrategy]::new()
     }
     return $CheckoutStrat, $Repos

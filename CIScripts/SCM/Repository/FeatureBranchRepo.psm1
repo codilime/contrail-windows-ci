@@ -1,5 +1,5 @@
+using module ".\Repo.psm1"
 . $PSScriptRoot\..\..\Common\DeferExcept.ps1
-. $PSScriptRoot\Repo.ps1
 
 class FeatureBranchRepo : Repo {
     [string] $FeatureBranch
@@ -16,8 +16,12 @@ class FeatureBranchRepo : Repo {
 
     Clone() {
         DeferExcept({
+            Write-Host "Cloning branch $($this.FeatureBranch) from $($this.Url)" `
+                       "into $($this.Dir)"
             git clone -q -b $this.FeatureBranch $this.Url $this.Dir
             if ($LASTEXITCODE -ne 0) {
+                Write-Host "Cloning branch $($this.Branch) from $($this.Url)" `
+                           "into $($this.Dir)"
                 git clone -q -b $this.Branch $this.Url $this.Dir
             }
         })
