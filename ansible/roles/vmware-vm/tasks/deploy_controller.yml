@@ -25,6 +25,43 @@
 
   register: newvm
 
+- debug:
+    msg: "[{{ inventory_hostname }}]: SSH_HOST={{ ansible_ssh_host }}"
+
+- name: Change hostname
+  hostname:
+    name: ds-demo-env-controller
+
+- name: Update /etc/hosts
+  template:
+    src: hosts-controller.j2
+    dest: /etc/hosts
+    owner: root
+    group: root
+    mode: 0644
+    force: yes
+
+- name: Reboot host
+  shell: reboot
+
+- name: Wait for reboot
+  wait_for:
+    host: "{{ ansible_ssh_host }}"
+    port: 22
+    state: started
+  connection: local
+  become: no
+
+# TODO: /etc/rabbitmq/rabbitmq-env.conf; template-contrail-controller into ds-demo-env-controller
+# TODO: /etc/contrail/contrail-dns.conf; template-contrail-controller into ds-demo-env-controller
+# TODO: /etc/contrail/contrail-control.conf; template-contrail-controller into ds-demo-env-controller
+
+# TODO: remove BGP router from contrail;
+#       add BGP router for the new hostname
+
+# TODO: remove virtual router from contrail;
+#       add virtual router based on new hostname
+
 - name: Save VM info to inventory file '{{ vm_inventory_file }}'
   delegate_to: localhost
   lineinfile:

@@ -1,12 +1,111 @@
 ---
+# Deploy controller VM from template
 - hosts: localhost
   connection: local
-  roles:
-  - testenv-inventory-build
+  tasks:
+  - name: Provision controller VM for testenv '{{ testenv_name }}'
+    vmware_guest:
+      hostname: "{{ vcenter_hostname }}"
+      username: "{{ vcenter_user }}"
+      password: "{{ vcenter_password }}"
+      datacenter: "{{ datacenter_name }}"
+      cluster: "{{ cluster_name }}"
+      validate_certs: "{{ validate_certs }}"
 
-- hosts: testenv
-  gather_facts: no
-  strategy: free
-  roles:
-  - role: vmware-vm
-    action: deploy
+      folder: "/{{ datacenter_name }}/vm/{{ testenv_folder }}"
+      name: "{{ testenv_block.controller.nodes[0].name }}"
+      template: "{{ testenv_block.controller.template }}"
+      annotation: "Ansible-created for {{ testenv_name }} environment"
+      state: present
+      networks:
+        - name: "{{ portgroup_mgmt }}"
+        - name: "{{ portgroup_contrail }}"
+    register: provisioned_vm
+
+  - name: Power on controller VM
+    vmware_guest:
+      hostname: "{{ vcenter_hostname }}"
+      username: "{{ vcenter_user }}"
+      password: "{{ vcenter_password }}"
+      datacenter: "{{ datacenter_name }}"
+      validate_certs: "{{ validate_certs }}"
+      name: "{{ provisioned_vm.instance.hw_name }}"
+      uuid: "{{ provisioned_vm.instance.hw_product_uuid }}"
+      state: poweredon
+
+  - name: Wait for VMware tools on controller VM
+    vmware_guest_tools_wait:
+      hostname: "{{ vcenter_hostname }}"
+      username: "{{ vcenter_user }}"
+      password: "{{ vcenter_password }}"
+      validate_certs: "{{ validate_certs }}"
+      uuid: "{{ provisioned_vm.instance.hw_product_uuid }}"
+    register: controller_vm_facts
+
+  - name: Add controller VM to inventory
+    add_host:
+      hostname: "{{ controller_vm_facts.instance.hw_name }}"
+      # TODO(sodar): IP extraction: you can do better
+      ansible_host: "{{ controller_vm_facts.instance.hw_eth0.ipaddresses[0] }}"
+      groups: controller,linux
+
+- hosts: controller
+  tasks:
+  - name: Change hostname
+    hostname:
+      name: "{{ inventory_hostname }}"
+
+  - name: Update /etc/hosts
+    template:
+      src: contrail-controller/hosts.j2
+      dest: /etc/hosts
+      owner: root
+      group: root
+      mode: 0644
+      force: yes
+
+  - name: Update RabbitMQ configuration
+    replace:
+      path: /etc/rabbitmq/rabbitmq-env.conf
+      regexp: '\(NODENAME\)=.*$'
+      replace: "\1{{ inventory_hostname }}"
+
+  - name: Update Contrail config files - hostname
+    replace:
+      path: "{{ item }}"
+      regexp: '\(hostname\)=.*$'
+      replace: "\1={{ inventory_hostname }}"
+    with_items:
+    - /etc/contrail/contrail-dns.conf
+    - /etc/contrail/contrail-control.conf
+
+  - name: Reboot host
+    delegate_to: localhost
+    vmware_guest:
+      hostname: "{{ vcenter_hostname }}"
+      username: "{{ vcenter_user }}"
+      password: "{{ vcenter_password }}"
+      datacenter: "{{ datacenter_name }}"
+      validate_certs: "{{ validate_certs }}"
+      folder: "/{{ datacenter_name }}/vm/{{ testenv_folder }}"
+      name: "{{ inventory_hostname }}"
+      state: rebootguest
+
+  - name: Wait for VMware tools on controller VM
+    delegate_to: localhost
+    vmware_guest_tools_wait:
+      hostname: "{{ vcenter_hostname }}"
+      username: "{{ vcenter_user }}"
+      password: "{{ vcenter_password }}"
+      validate_certs: "{{ validate_certs }}"
+      folder: "/{{ datacenter_name }}/vm/{{ testenv_folder }}"
+      name: "{{ inventory_hostname }}"
+
+  # TODO(sodar)
+  #- name: Ensure Cassandra is running
+
+  # TODO: remove BGP router from contrail;
+  #       add BGP router for the new hostname
+
+  # TODO: remove virtual router from contrail;
+  #       add virtual router based on new hostname
