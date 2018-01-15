@@ -45,7 +45,7 @@ function Clone-ZuulRepos {
         # TODO: Use Juniper repo
         # TODO: When contrail-windows will be on Gerrit, fetch it with zull-cloner
         DeferExcept({
-            git clone -q https://github.com/codilime/contrail-windowsstubs.git windows/
+            git clone -q -b master https://github.com/codilime/contrail-windowsstubs.git windows/
         })
         Write-Host "Cloned Windows stubs"
     })
