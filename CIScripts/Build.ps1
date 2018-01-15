@@ -8,6 +8,8 @@
 
 $Job = [Job]::new("Build")
 
+Write-Host "Building in " $Env:Home
+
 $IsTriggeredByZuul = Test-Path Env:ZUUL_PROJECT
 if($IsTriggeredByZuul) {
     # Build is triggered by Zuul, when someone submits a pull
