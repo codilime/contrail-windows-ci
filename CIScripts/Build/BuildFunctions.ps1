@@ -43,6 +43,8 @@ function Prepare-BuildEnvironment {
         Get-ChildItem "$ThirdPartyCache\common" -Directory |
             Where-Object{$_.Name -notlike "boost*"} |
             Copy-Item -Destination third_party\ -Recurse -Force
+
+        Copy-Item -Recurse "$ThirdPartyCache\agent\openssl-1.0.2k\" third_party/
     })
 
     $Job.Step("Symlinking boost", {
