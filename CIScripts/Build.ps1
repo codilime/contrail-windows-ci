@@ -9,29 +9,31 @@
 $Job = [Job]::new("Build")
 
 $IsTriggeredByZuul = Test-Path Env:ZUUL_PROJECT
-# if($IsTriggeredByZuul) {
-#     # Build is triggered by Zuul, when someone submits a pull
-#     # request to review.opencontrail.org.
+if($IsTriggeredByZuul) {
+    # Build is triggered by Zuul, when someone submits a pull
+    # request to review.opencontrail.org.
 
-#     Clone-ZuulRepos -GerritUrl $Env:GERRIT_URL `
-#                     -ZuulProject $Env:ZUUL_PROJECT `
-#                     -ZuulRef $Env:ZUUL_REF `
-#                     -ZuulUrl $Env:ZUUL_URL `
-#                     -ZuulBranch $Env:ZUUL_BRANCH
-# } else {
-#     # Build is triggered by Jenkins GitHub plugin, when someone submits a pull
-#     # request to select github.com/codilime/* repos.
+    Clone-ZuulRepos -GerritUrl $Env:GERRIT_URL `
+                    -ZuulProject $Env:ZUUL_PROJECT `
+                    -ZuulRef $Env:ZUUL_REF `
+                    -ZuulUrl $Env:ZUUL_URL `
+                    -ZuulBranch $Env:ZUUL_BRANCH
+} else {
+    # Build is triggered by Jenkins GitHub plugin, when someone submits a pull
+    # request to select github.com/codilime/* repos.
 
-#     $Repos = Get-StagingRepos -DriverBranch $ENV:DRIVER_BRANCH `
-#                               -WindowsstubsBranch $ENV:WINDOWSSTUBS_BRANCH `
-#                               -ToolsBranch $Env:TOOLS_BRANCH `
-#                               -SandeshBranch $Env:SANDESH_BRANCH `
-#                               -GenerateDSBranch $Env:GENERATEDS_BRANCH `
-#                               -VRouterBranch $Env:VROUTER_BRANCH `
-#                               -ControllerBranch $Env:CONTROLLER_BRANCH
+    $Repos = Get-StagingRepos -DriverBranch $ENV:DRIVER_BRANCH `
+                              -WindowsstubsBranch $ENV:WINDOWSSTUBS_BRANCH `
+                              -ToolsBranch $Env:TOOLS_BRANCH `
+                              -SandeshBranch $Env:SANDESH_BRANCH `
+                              -GenerateDSBranch $Env:GENERATEDS_BRANCH `
+                              -VRouterBranch $Env:VROUTER_BRANCH `
+                              -ControllerBranch $Env:CONTROLLER_BRANCH
 
-#     Clone-Repos -Repos $Repos
-# }
+    Clone-Repos -Repos $Repos
+}
+
+Write-Host "EAP: " $ErrorActionPreference
 
 $IsReleaseMode = [bool]::Parse($Env:BUILD_IN_RELEASE_MODE)
 Prepare-BuildEnvironment -ThirdPartyCache $Env:THIRD_PARTY_CACHE_PATH
