@@ -4,34 +4,34 @@
 function Clone-Repos {
     Param ([Parameter(Mandatory = $true, HelpMessage = "Map of repos to clone")] [System.Collections.Hashtable] $Repos)
 
-    $Job.Step("Cloning repositories", {
-        $CustomBranches = @($Repos.Where({ $_.Branch -ne $_.DefaultBranch }) |
-                            Select-Object -ExpandProperty Branch -Unique)
-        $Repos.Values.ForEach({
-            # If there is only one unique custom branch provided, at first try to use it for all repos.
-            # Otherwise, use branch specific for this repo.
-            $CustomMultiBranch = $(if ($CustomBranches.Count -eq 1) { $CustomBranches[0] } else { $_.Branch })
+    # $Job.Step("Cloning repositories", {
+    #     $CustomBranches = @($Repos.Where({ $_.Branch -ne $_.DefaultBranch }) |
+    #                         Select-Object -ExpandProperty Branch -Unique)
+    #     $Repos.Values.ForEach({
+    #         # If there is only one unique custom branch provided, at first try to use it for all repos.
+    #         # Otherwise, use branch specific for this repo.
+    #         $CustomMultiBranch = $(if ($CustomBranches.Count -eq 1) { $CustomBranches[0] } else { $_.Branch })
 
-            Write-Host $("Cloning " +  $_.Url + " from branch: " + $CustomMultiBranch)
+    #         Write-Host $("Cloning " +  $_.Url + " from branch: " + $CustomMultiBranch)
 
-            # We must use -q (quiet) flag here, since git clone prints to stderr and tries to do some real-time
-            # command line magic (like updating cloning progress). Powershell command in Jenkinsfile
-            # can't handle it and throws a Write-ErrorException.
-            DeferExcept({
-                git clone -q -b $CustomMultiBranch $_.Url $_.Dir
+    #         # We must use -q (quiet) flag here, since git clone prints to stderr and tries to do some real-time
+    #         # command line magic (like updating cloning progress). Powershell command in Jenkinsfile
+    #         # can't handle it and throws a Write-ErrorException.
+    #         DeferExcept({
+    #             git clone -q -b $CustomMultiBranch $_.Url $_.Dir
 
-                if ($LASTEXITCODE -ne 0) {
-                    Write-Host $("Cloning " +  $_.Url + " from branch: " + $_.Branch)
-                    git clone -q -b $_.Branch $_.Url $_.Dir
+    #             if ($LASTEXITCODE -ne 0) {
+    #                 Write-Host $("Cloning " +  $_.Url + " from branch: " + $_.Branch)
+    #                 git clone -q -b $_.Branch $_.Url $_.Dir
 
-                    if ($LASTEXITCODE -ne 0) {
-                        # Write-Host instead of throw, because DeferExcept will throw anyway
-                        Write-Host "Cloning from " + $_.Url + " failed"
-                    }
-                }
-            })
-        })
-    })
+    #                 if ($LASTEXITCODE -ne 0) {
+    #                     # Write-Host instead of throw, because DeferExcept will throw anyway
+    #                     Write-Host "Cloning from " + $_.Url + " failed"
+    #                 }
+    #             }
+    #         })
+    #     })
+    # })
 }
 
 function Prepare-BuildEnvironment {
@@ -44,7 +44,9 @@ function Prepare-BuildEnvironment {
             Where-Object{$_.Name -notlike "boost*"} |
             Copy-Item -Destination third_party\ -Recurse -Force
 
-        Copy-Item -Recurse "$ThirdPartyCache\agent\openssl-1.0.2k\" third_party/
+        Write-Host "ErrorActionPreference: " $ErrorActionPreference
+        Copy-Item -Recurse "$ThirdPartyCache\agent\openzzl-1.0.2k\" third_party/
+        Write-Host "Last status: " $?
     })
 
     $Job.Step("Symlinking boost", {
