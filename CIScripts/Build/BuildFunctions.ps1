@@ -44,8 +44,6 @@ function Prepare-BuildEnvironment {
             Where-Object{$_.Name -notlike "boost*"} |
             Copy-Item -Destination third_party\ -Recurse -Force
 
-        DeferExcept({ go foobar })
-
         Write-Host "ErrorActionPreference: " $ErrorActionPreference
         Copy-Item -Recurse "$ThirdPartyCache\agent\openzzl-1.0.2k\" third_party/
         Write-Host "Last status: " $?
