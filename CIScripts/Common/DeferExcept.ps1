@@ -24,6 +24,6 @@ function DeferExcept([scriptblock] $block) {
             throw "Command ``$block`` failed with exitcode: $LASTEXITCODE"
         }
 
-        $Global:LASTEXITCODE = "none"
+        Clear-Variable Lastexitcode -Scope Global
     }
 }
