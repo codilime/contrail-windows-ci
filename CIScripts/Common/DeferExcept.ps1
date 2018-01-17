@@ -13,7 +13,7 @@ function DeferExcept([scriptblock] $block) {
     # Note: The command has to return 0 exitcode to be considered successful.
 
     return Invoke-Command -ScriptBlock {
-        $Global:LastExitCode = $null
+        $Global:LastExitCode = "null"
 
         & {
             $ErrorActionPreference = "Continue"
@@ -23,7 +23,5 @@ function DeferExcept([scriptblock] $block) {
         if ($LASTEXITCODE -ne 0) {
             throw "Command ``$block`` failed with exitcode: $LASTEXITCODE"
         }
-
-        $Global:LastExitCode = $null
     }
 }
