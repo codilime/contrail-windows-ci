@@ -45,7 +45,7 @@ function Prepare-BuildEnvironment {
             Copy-Item -Destination third_party\ -Recurse -Force
 
         Write-Host "ErrorActionPreference: " $ErrorActionPreference
-        Copy-Item -Recurse "$ThirdPartyCache\agent\openzzl-1.0.2k\" third_party/
+        Copy-Item -Recurse "$ThirdPartyCache\agent\openssl-1.0.2k\" third_party/
         Write-Host "Last status: " $?
     })
 
