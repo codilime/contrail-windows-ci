@@ -71,7 +71,7 @@ function Run-TestScenarios {
         #     LinuxVirtualMachineIp = $Env:LINUX_VIRTUAL_MACHINE_IP;
         # }
 
-        $TestConfiguration = Import-LocalizedData -FileName TestConfiguration.psd1
+        $TestConfiguration = Import-LocalizedData -FileName TestConfiguration
 
         # $SNATConfiguration = [SNATConfiguration] @{
         #     EndhostIP = $Env:SNAT_ENDHOST_IP;
