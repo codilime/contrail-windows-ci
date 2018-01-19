@@ -8,6 +8,6 @@ $Job = [Job]::new("Test")
 $Creds = Get-VMCreds
 
 $Sessions = New-RemoteSessionsToTestbeds
-Run-Tests -Sessions $Sessions
+Run-Tests -Sessions $Sessions -TestConfigurationFile $Env:TEST_CONFIGURATION_FILE
 
 $Job.Done()

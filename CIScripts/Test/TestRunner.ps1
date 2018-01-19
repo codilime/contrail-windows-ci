@@ -17,7 +17,10 @@
 . $PSScriptRoot\Tests\WindowsLinuxIntegrationTests.ps1
 
 function Run-TestScenarios {
-    Param ([Parameter(Mandatory = $true)] [PSSessionT[]] $Sessions)
+    Param (
+        [Parameter(Mandatory = $true)] [PSSessionT[]] $Sessions,
+        [Parameter(Mandatory = $true)] [String] $TestConfigurationFile
+    )
 
     $Job.Step("Running all integration tests", {
 
@@ -71,19 +74,11 @@ function Run-TestScenarios {
         #     LinuxVirtualMachineIp = $Env:LINUX_VIRTUAL_MACHINE_IP;
         # }
 
-        $TestConfiguration = Import-LocalizedData -FileName TestConfiguration
+        . $PSScriptRoot\$TestConfigurationFile
 
-        # $SNATConfiguration = [SNATConfiguration] @{
-        #     EndhostIP = $Env:SNAT_ENDHOST_IP;
-        #     VethIP = $Env:SNAT_VETH_IP;
-        #     GatewayIP = $Env:SNAT_GATEWAY_IP;
-        #     ContainerGatewayIP = $Env:SNAT_CONTAINER_GATEWAY_IP;
-        #     EndhostUsername = $Env:SNAT_ENDHOST_USERNAME;
-        #     EndhostPassword = $Env:SNAT_ENDHOST_PASSWORD;
-        #     DiskDir = $Env:SNAT_DISK_DIR;
-        #     DiskFileName = $Env:SNAT_DISK_FILE_NAME;
-        #     VMDir = $Env:SNAT_VM_DIR;
-        # }
+        $TestConfiguration = Get-TestConfiguration
+
+        # $SNATConfiguration = Get-SnatConfiguration
 
         Test-AgentService -Session $Sessions[0] -TestConfiguration $TestConfiguration
         Test-ExtensionLongLeak -Session $Sessions[0] -TestDurationHours $Env:LEAK_TEST_DURATION -TestConfiguration $TestConfiguration
@@ -134,7 +129,10 @@ function Collect-Logs {
 }
 
 function Run-Tests {
-    Param ([Parameter(Mandatory = $true)] [PSSessionT[]] $Sessions)
+    Param (
+        [Parameter(Mandatory = $true)] [PSSessionT[]] $Sessions,
+        [Parameter(Mandatory = $true)] [String] $TestConfigurationFile
+    )
 
     try {
         Run-TestScenarios -Sessions $Sessions
