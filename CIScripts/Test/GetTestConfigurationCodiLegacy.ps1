@@ -46,16 +46,15 @@ function Get-TestConfigurationWindowsLinux {
 }
 
 function Get-SnatConfiguration {
-    # TODO un-env this
     [SNATConfiguration] @{
-        EndhostIP = $Env:SNAT_ENDHOST_IP;
-        VethIP = $Env:SNAT_VETH_IP;
-        GatewayIP = $Env:SNAT_GATEWAY_IP;
-        ContainerGatewayIP = $Env:SNAT_CONTAINER_GATEWAY_IP;
-        EndhostUsername = $Env:SNAT_ENDHOST_USERNAME;
-        EndhostPassword = $Env:SNAT_ENDHOST_PASSWORD;
-        DiskDir = $Env:SNAT_DISK_DIR;
-        DiskFileName = $Env:SNAT_DISK_FILE_NAME;
-        VMDir = $Env:SNAT_VM_DIR;
+        EndhostIP = "10.7.3.10";
+        VethIP = "10.7.3.210";
+        GatewayIP = "10.7.3.200";
+        ContainerGatewayIP = "10.0.0.1";
+        EndhostUsername = "ubuntu";
+        EndhostPassword = "ubuntu";
+        DiskDir = "C:\contrail-ci\snat-vm-image";
+        DiskFileName = "snat-vm-image.vhdx";
+        VMDir = "C:\contrail-ci\snat-vm";
     }
 }
