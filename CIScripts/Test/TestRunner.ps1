@@ -74,7 +74,7 @@ function Run-TestScenarios {
         #     LinuxVirtualMachineIp = $Env:LINUX_VIRTUAL_MACHINE_IP;
         # }
 
-        . $PSScriptRoot\$TestConfigurationFile
+        . "$TestConfigurationFile"
 
         $TestConfiguration = Get-TestConfiguration
 
@@ -135,7 +135,7 @@ function Run-Tests {
     )
 
     try {
-        Run-TestScenarios -Sessions $Sessions
+        Run-TestScenarios -Sessions $Sessions -TestConfigurationFile $TestConfigurationFile
     }
     catch {
         Write-Host $_
