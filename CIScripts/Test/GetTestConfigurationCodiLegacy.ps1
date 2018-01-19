@@ -38,6 +38,13 @@ function Get-TestConfiguration {
     }
 }
 
+function Get-TestConfigurationWindowsLinux {
+    $Configuration = Get-TestConfiguration
+    $Configuration.ControllerIP = "10.7.0.216"
+    $Configuration.DockerDriverConfiguration.AuthUrl = "http://10.7.0.216:5000/v2.0"
+    $Configuration
+}
+
 function Get-SnatConfiguration {
     # TODO un-env this
     [SNATConfiguration] @{

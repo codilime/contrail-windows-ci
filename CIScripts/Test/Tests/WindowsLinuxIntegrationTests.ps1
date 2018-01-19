@@ -127,13 +127,8 @@ function Test-WindowsLinuxIntegration {
     $Job.StepQuiet($MyInvocation.MyCommand.Name, {
         Clear-TestConfiguration -Session $Session -TestConfiguration $TestConfiguration
 
-        $TestConfigurationWinLinux = $TestConfiguration.ShallowCopy()
-        $TestConfigurationWinLinux.DockerDriverConfiguration = $TestConfiguration.DockerDriverConfiguration.ShallowCopy()
-        $TestConfigurationWinLinux.ControllerIP = $Env:CONTROLLER_IP_LINUX_WINDOWS
-        $TestConfigurationWinLinux.DockerDriverConfiguration.AuthUrl = $Env:DOCKER_DRIVER_AUTH_URL_LINUX_WINDOWS
-
-        Test-IcmpLinuxWindowsConnectivity -Session $Session -TestConfiguration $TestConfigurationWinLinux
-        Test-UdpLinuxWindowsConnectivity -Session $Session -TestConfiguration $TestConfigurationWinLinux
-        Test-TcpLinuxWindowsConnectivity -Session $Session -TestConfiguration $TestConfigurationWinLinux
+        Test-IcmpLinuxWindowsConnectivity -Session $Session -TestConfiguration $TestConfiguration
+        Test-UdpLinuxWindowsConnectivity -Session $Session -TestConfiguration $TestConfiguration
+        Test-TcpLinuxWindowsConnectivity -Session $Session -TestConfiguration $TestConfiguration
     })
 }

@@ -93,7 +93,7 @@ function Run-TestScenarios {
         Test-ComputeControllerIntegration -Session $Sessions[0] -TestConfiguration $TestConfiguration
         Test-MultipleSubnetsSupport -Session $Sessions[0] -TestConfiguration $TestConfiguration
         Test-DockerDriverMultiTenancy -Session $Sessions[0] -TestConfiguration $TestConfiguration
-        Test-WindowsLinuxIntegration -Session $Sessions[0] -TestConfiguration $TestConfiguration
+        Test-WindowsLinuxIntegration -Session $Sessions[0] -TestConfiguration (Get-TestConfigurationWindowsLinux)
         Test-Pkt0PipeImplementation -Session $Sessions[0] -TestConfiguration $TestConfiguration
 
         if($Env:RUN_DRIVER_TESTS -eq "1") {
