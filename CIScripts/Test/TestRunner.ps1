@@ -24,56 +24,6 @@ function Run-TestScenarios {
 
     $Job.Step("Running all integration tests", {
 
-        # $SingleSubnetNetworkConfiguration = [NetworkConfiguration] @{
-        #     Name = $Env:SINGLE_SUBNET_NETWORK_NAME
-        #     Subnets = @($Env:SINGLE_SUBNET_NETWORK_SUBNET)
-        # }
-
-        # $MultipleSubnetsNetworkConfiguration = [NetworkConfiguration] @{
-        #     Name = $Env:MULTIPLE_SUBNETS_NETWORK_NAME
-        #     Subnets = @($Env:MULTIPLE_SUBNETS_NETWORK_SUBNET1, $Env:MULTIPLE_SUBNETS_NETWORK_SUBNET2)
-        # }
-
-        # $NetworkWithPolicy1Configuration = [NetworkConfiguration] @{
-        #     Name = $Env:NETWORK_WITH_POLICY_1_NAME
-        #     Subnets = @($Env:NETWORK_WITH_POLICY_1_SUBNET)
-        # }
-
-        # $NetworkWithPolicy2Configuration = [NetworkConfiguration] @{
-        #     Name = $Env:NETWORK_WITH_POLICY_2_NAME
-        #     Subnets = @($Env:NETWORK_WITH_POLICY_2_SUBNET)
-        # }
-
-        # $TenantConfiguration = [TenantConfiguration] @{
-        #     Name = $Env:DOCKER_NETWORK_TENANT_NAME;
-        #     DefaultNetworkName = $SingleSubnetNetworkConfiguration.Name;
-        #     SingleSubnetNetwork = $SingleSubnetNetworkConfiguration;
-        #     MultipleSubnetsNetwork = $MultipleSubnetsNetworkConfiguration;
-        #     NetworkWithPolicy1 = $NetworkWithPolicy1Configuration;
-        #     NetworkWithPolicy2 = $NetworkWithPolicy2Configuration;
-        # }
-
-        # $DockerDriverConfiguration = [DockerDriverConfiguration] @{
-        #     Username = $Env:DOCKER_DRIVER_USERNAME;
-        #     Password = $Env:DOCKER_DRIVER_PASSWORD;
-        #     AuthUrl = $Env:DOCKER_DRIVER_AUTH_URL;
-        #     TenantConfiguration = $TenantConfiguration;
-        # }
-
-        # $TestConfiguration = [TestConfiguration] @{
-        #     ControllerIP = $Env:CONTROLLER_IP;
-        #     ControllerRestPort = 8082
-        #     ControllerHostUsername = $Env:CONTROLLER_HOST_USERNAME;
-        #     ControllerHostPassword = $Env:CONTROLLER_HOST_PASSWORD;
-        #     AdapterName = $Env:ADAPTER_NAME;
-        #     VMSwitchName = "Layered " + $Env:ADAPTER_NAME;
-        #     VHostName = "vEthernet (HNSTransparent)"
-        #     ForwardingExtensionName = $Env:FORWARDING_EXTENSION_NAME;
-        #     AgentConfigFilePath = "C:\ProgramData\Contrail\etc\contrail\contrail-vrouter-agent.conf";
-        #     DockerDriverConfiguration = $DockerDriverConfiguration;
-        #     LinuxVirtualMachineIp = $Env:LINUX_VIRTUAL_MACHINE_IP;
-        # }
-
         . "$TestConfigurationFile"
 
         $TestConfiguration = Get-TestConfiguration
