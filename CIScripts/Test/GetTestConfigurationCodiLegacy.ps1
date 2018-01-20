@@ -45,6 +45,13 @@ function Get-TestConfigurationWindowsLinux {
     $Configuration
 }
 
+function Get-TestConfigurationUdp {
+    $Configuration = Get-TestConfiguration
+    $Configuration.ControllerIP = "10.7.0.200"
+    $Configuration.DockerDriverConfiguration.AuthUrl = "http://10.7.0.200:5000/v2.0"
+    $Configuration
+}
+
 function Get-SnatConfiguration {
     [SNATConfiguration] @{
         EndhostIP = "10.7.3.10";
