@@ -79,7 +79,7 @@ function Test-WindowsLinuxIntegration {
                 '$GotMessage = $ReceiveTask.Wait(5000);' +`
                 'if($GotMessage) {{$ReceivedMessage = [System.Text.Encoding]::UTF8.GetString($ReceiveTask.Result.Buffer)}};' +`
                 'return $ReceivedMessage;'
-                ) -f $TestConfigurationWinLinux.LinuxVirtualMachineIp, $Port, $Message
+                ) -f $TestConfiguration.LinuxVirtualMachineIp, $Port, $Message
             $ReceivedMessage = Invoke-Command -Session $Session -ScriptBlock {
                 return & docker exec $Using:ClientID powershell -Command $Using:Command
             }
