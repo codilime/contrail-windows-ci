@@ -45,34 +45,4 @@ pipeline {
             }
         }
     }
-
-    environment {
-        LOG_SERVER = "logs.opencontrail.org"
-        LOG_SERVER_USER = "zuul-win"
-        LOG_ROOT_DIR = "/var/www/logs/winci"
-        BUILD_SPECIFIC_DIR = "${ZUUL_UUID}"
-        JOB_SUBDIR = env.JOB_NAME.replaceAll("/", "/jobs/")
-        LOCAL_SRC_FILE = "${JENKINS_HOME}/jobs/${JOB_SUBDIR}/builds/${BUILD_ID}/log"
-        REMOTE_DST_FILE = "${LOG_ROOT_DIR}/${BUILD_SPECIFIC_DIR}/log.txt"
-    }
-
-    post {
-        always {
-            node('master') {
-                script {
-                    // Job triggered by Zuul -> upload log file to public server.
-                    // Job triggered by Github CI repository (variable "ghprbPullId" exists) -> keep log "private".
-                    if (env.ghprbPullId == null) {
-                        // cleanWs()
-                        echo "TODO environment cleanup"
-                        // unstash "buildLogs"
-                        // TODO correct flags for rsync
-                        sh "ssh ${LOG_SERVER_USER}@${LOG_SERVER} \"mkdir -p ${LOG_ROOT_DIR}/${BUILD_SPECIFIC_DIR}\""
-                        sh "rsync ${LOCAL_SRC_FILE} ${LOG_SERVER_USER}@${LOG_SERVER}:${REMOTE_DST_FILE}"
-                        // cleanWS{}
-                    }
-                }
-            }
-        }
-    }
 }
