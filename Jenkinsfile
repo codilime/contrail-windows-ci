@@ -44,47 +44,6 @@ pipeline {
                 //stash name: "buildLogs", includes: "logs/**"
             }
         }
-
-        // Variables are not supported in declarative pipeline.
-        // Possible workaround: store SpawnedTestbedVMNames in stashed file.
-        // def SpawnedTestbedVMNames = ''
-
-        stage('Provision') {
-            agent { label 'ansible' }
-            steps {
-                sh 'echo "TODO use ansible for provisioning"'
-                // set $SpawnedTestbedVMNames here
-            }
-        }
-
-        stage('Deploy') {
-            agent { label 'tester' }
-            environment {
-                // TESTBED_HOSTNAMES = SpawnedTestbedVMNames
-                ARTIFACTS_DIR = "output"
-            }
-            steps {
-                deleteDir()
-                unstash "CIScripts"
-                // unstash "WinArt"
-                // powershell script: './CIScripts//Deploy.ps1'
-            }
-        }
-
-        stage('Test') {
-            agent { label 'tester' }
-            environment {
-                // TESTBED_HOSTNAMES = SpawnedTestbedVMNames
-                ARTIFACTS_DIR = "output"
-                // TODO actually create this file
-                TEST_CONFIGURATION_FILE = "GetTestConfigurationJuni.ps1"
-            }
-            steps {
-                deleteDir()
-                unstash "CIScripts"
-                // powershell script: './CIScripts/Test.ps1'
-            }
-        }
     }
 
     environment {
