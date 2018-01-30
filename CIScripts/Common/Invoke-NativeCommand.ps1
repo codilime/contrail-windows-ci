@@ -23,6 +23,9 @@ function Invoke-NativeCommand {
 
     & {
         $ErrorActionPreference = "SilentlyContinue"
+        write-host $ErrorActionPreference
+        write-host "kek"
+        write-host $Error
         & $ScriptBlock
     }
 
