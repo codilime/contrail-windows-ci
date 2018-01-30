@@ -27,6 +27,9 @@ function Invoke-NativeCommand {
         write-host "kek"
         write-host $Error
         & $ScriptBlock
+        write-host $ErrorActionPreference
+        write-host "kek"
+        write-host $Error
     }
 
     if ($AllowNonZero -eq $false -and $LastExitCode -ne 0) {
