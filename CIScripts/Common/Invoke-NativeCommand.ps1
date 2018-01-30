@@ -22,7 +22,7 @@ function Invoke-NativeCommand {
     $Global:LastExitCode = $null
 
     & {
-        $ErrorActionPreference = "Ignore"
+        $ErrorActionPreference = "SilentlyContinue"
         & $ScriptBlock
     }
 
@@ -35,4 +35,5 @@ function Invoke-NativeCommand {
     }
 
     $Global:LastExitCode = $null
+    $Global:Error.Clear()
 }
