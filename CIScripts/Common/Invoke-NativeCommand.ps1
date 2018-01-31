@@ -41,5 +41,16 @@ function Invoke-NativeCommand {
     }
 
     $Global:LastExitCode = $null
+
+    write-host "MC1"
+    write-host $Error
+    write-host $Global:Error
+    $Error.Clear()
+    write-host "MC2"
+    write-host $Error
+    write-host $Global:Error
     $Global:Error.Clear()
+    write-host "MC3"
+    write-host $Error
+    write-host $Global:Error
 }
