@@ -7,7 +7,10 @@ function Test-VTestScenarios {
     $Job.StepQuiet($MyInvocation.MyCommand.Name, {
         Write-Host "===> Running vtest scenarios"
 
-        Initialize-TestConfiguration -Session $Session -TestConfiguration $TestConfiguration
+        Clear-TestConfiguration -Session $Session -TestConfiguration $TestConfiguration
+        Enable-VRouterExtension -Session $Session -AdapterName $TestConfiguration.AdapterName `
+                -VMSwitchName $TestConfiguration.VMSwitchName `
+                -ForwardingExtensionName $TestConfiguration.ForwardingExtensionName
 
         $VMSwitchName = $TestConfiguration.VMSwitchName
         Invoke-Command -Session $Session -ScriptBlock {
