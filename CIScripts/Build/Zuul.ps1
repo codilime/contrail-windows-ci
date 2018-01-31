@@ -30,11 +30,12 @@ function Clone-ZuulRepos {
         "Juniper/contrail-common"
     )
 
+    $str1 = $ZuulClonerOptions -join ' '
+    $str2 = $ProjectList -join ' '
+
     $Job.Step("Cloning zuul repositories", {
         Invoke-NativeCommand -ScriptBlock {
-            cmd.exe /c "zuul-cloner.exe {0} {1} 2>&1" -f @ZuulClonerOptions, @ProjectList
-            $Error.Clear()
-            $Global:Error.Clear()
+            cmd.exe /c "zuul-cloner.exe $str1 $str2 2>&1"
         }
     })
 }
