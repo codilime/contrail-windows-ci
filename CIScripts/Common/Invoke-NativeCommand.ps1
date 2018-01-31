@@ -22,17 +22,7 @@ function Invoke-NativeCommand {
     $Global:LastExitCode = $null
 
     & {
-        $ErrorActionPreference = "SilentlyContinue"
-        write-host $ErrorActionPreference
-        write-host "kek"
-        write-host $Error
         & $ScriptBlock
-        write-host $ErrorActionPreference
-        write-host "kek"
-        write-host $Error
-
-        $Error.Clear()
-        $Global:Error.Clear()
     }
 
     if ($AllowNonZero -eq $false -and $LastExitCode -ne 0) {
@@ -44,16 +34,4 @@ function Invoke-NativeCommand {
     }
 
     $Global:LastExitCode = $null
-
-    write-host "MC1"
-    write-host $Error
-    write-host $Global:Error
-    $Error.Clear()
-    write-host "MC2"
-    write-host $Error
-    write-host $Global:Error
-    $Global:Error.Clear()
-    write-host "MC3"
-    write-host $Error
-    write-host $Global:Error
 }
