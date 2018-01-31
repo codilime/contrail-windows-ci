@@ -20,7 +20,7 @@ function Invoke-NativeCommand {
     # Note: The command has to return 0 exitcode to be considered successful.
 
     $Ret = "" | Select-Object -Property ExitCode, Output
-    cmd.exe @("/c", "`"", $Command, "2>&1", "`"") | Tee-Object -Variable Output
+    cmd.exe @(,"/c" + "`"" + $Command + "2>&1" + "`"") | Tee-Object -Variable Output
 
     if ($AllowNonZero -eq $false -and $LastExitCode -ne 0) {
         throw "Command ``$block`` failed with exitcode: $LastExitCode"
