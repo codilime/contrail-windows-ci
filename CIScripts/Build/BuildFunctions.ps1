@@ -17,18 +17,10 @@ function Clone-Repos {
             # We must use -q (quiet) flag here, since git clone prints to stderr and tries to do some real-time
             # command line magic (like updating cloning progress). Powershell command in Jenkinsfile
             # can't handle it and throws a Write-ErrorException.
-            Invoke-NativeCommand -ScriptBlock {
-                git clone -q -b $CustomMultiBranch $_.Url $_.Dir
-
-                if ($LASTEXITCODE -ne 0) {
-                    Write-Host $("Cloning " +  $_.Url + " from branch: " + $_.Branch)
-                    git clone -q -b $_.Branch $_.Url $_.Dir
-
-                    if ($LASTEXITCODE -ne 0) {
-                        # Write-Host instead of throw, because Invoke-NativeCommand will throw anyway
-                        Write-Host "Cloning from " + $_.Url + " failed"
-                    }
-                }
+            $CmdRet = Invoke-NativeCommand -Command "git clone -q -b $CustomMultiBranch $_.Url $_.Dir" -AllowNonZero $true
+            if ($CmdRet.ExitCode -ne 0) {
+                Write-Host $("Cloning " +  $_.Url + " from branch: " + $_.Branch)
+                Invoke-NativeCommand -Command "git clone -q -b $_.Branch $_.Url $_.Dir"
             }
         })
     })
@@ -61,9 +53,7 @@ function Set-MSISignature {
            [Parameter(Mandatory = $true)] [string] $MSIPath)
     $Job.Step("Signing MSI", {
         $cerp = Get-Content $CertPasswordFilePath
-        Invoke-NativeCommand -ScriptBlock {
-            & $SigntoolPath sign /f $CertPath /p $cerp $MSIPath
-        }
+        Invoke-NativeCommand -Command "$SigntoolPath sign /f $CertPath /p $cerp $MSIPath"
     })
 }
 
@@ -84,39 +74,27 @@ function Invoke-DockerDriverBuild {
 
     Push-Location $srcPath
     $Job.Step("Fetch third party packages ", {
-        Invoke-NativeCommand -ScriptBlock {
-            & dep ensure -v
-        }
-
-        Invoke-NativeCommand -ScriptBlock {
-            & dep prune -v
-        }
+        Invoke-NativeCommand -Command "dep ensure -v"
+        Invoke-NativeCommand -Command "dep prune -v"
     })
     Pop-Location
 
     $Job.Step("Contrail-go-api source code generation", {
-        Invoke-NativeCommand -ScriptBlock {
-            python tools/generateds/generateDS.py -q -f `
-                                                  -o $srcPath/vendor/github.com/Juniper/contrail-go-api/types/ `
-                                                  -g golang-api controller/src/schema/vnc_cfg.xsd
-        }
+        $GeneratedsCmd = "python tools/generateds/generateDS.py -q -f -o $srcPath/vendor/github.com/Juniper/contrail-go-api/types/ -g golang-api controller/src/schema/vnc_cfg.xsd"
+        Invoke-NativeCommand -Command $GeneratedsCmd
     })
 
     Push-Location bin
 
     $Job.Step("Building driver", {
         # TODO: Handle new name properly
-        Invoke-NativeCommand -ScriptBlock {
-            go build -o contrail-windows-docker.exe -v $DriverSrcPath
-        }
+        Invoke-NativeCommand -Command "go build -o contrail-windows-docker.exe -v $DriverSrcPath"
     })
 
     $Job.Step("Precompiling tests", {
         $modules = @("driver", "controller", "hns", "hnsManager")
         $modules.ForEach({
-            Invoke-NativeCommand -ScriptBlock {
-                ginkgo build $srcPath/$_
-            }
+            Invoke-NativeCommand -Command "ginkgo build $srcPath/$_"
             Move-Item $srcPath/$_/$_.test ./
         })
     })
@@ -127,10 +105,8 @@ function Invoke-DockerDriverBuild {
 
     $Job.Step("Building MSI", {
         Push-Location $srcPath
-        Invoke-NativeCommand -ScriptBlock {
-            & go-msi make --msi docker-driver.msi --arch x64 --version 0.1 `
-                          --src template --out $pwd/gomsi
-        }
+        $gomsiCmd = "go-msi make --msi docker-driver.msi --arch x64 --version 0.1 --src template --out $pwd/gomsi"
+        Invoke-NativeCommand -Command $gomsiCmd
         Pop-Location
 
         Move-Item $srcPath/docker-driver.msi ./
@@ -170,10 +146,8 @@ function Invoke-ExtensionBuild {
 
     $Job.Step("Building Extension and Utils", {
         $BuildModeOption = "--optimization=" + $BuildMode
-        Invoke-NativeCommand -ScriptBlock {
-            $Env:cerp = Get-Content $CertPasswordFilePath
-            scons $BuildModeOption vrouter | Tee-Object -FilePath $LogsDir/vrouter_build.log
-        }
+        $Env:cerp = Get-Content $CertPasswordFilePath
+        Invoke-NativeCommand -Command "scons $BuildModeOption vrouter | Tee-Object -FilePath $LogsDir/vrouter_build.log"
     })
 
     $vRouterRoot = "build\{0}\vrouter" -f $BuildMode
@@ -222,16 +196,13 @@ function Invoke-AgentBuild {
     $BuildModeOption = "--optimization=" + $BuildMode
 
     $Job.Step("Building API", {
-        Invoke-NativeCommand -ScriptBlock {
-            scons $BuildModeOption controller/src/vnsw/contrail_vrouter_api:sdist | Tee-Object -FilePath $LogsPath/build_api.log
-        }
+        $ApiCmd = "scons $BuildModeOption controller/src/vnsw/contrail_vrouter_api:sdist | Tee-Object -FilePath $LogsPath/build_api.log"
+        Invoke-NativeCommand -Command $ApiCmd
     })
 
     $Job.Step("Building contrail-vrouter-agent.exe and .msi", {
-        $AgentBuildCommand = "scons -j 4 {0} contrail-vrouter-agent.msi" -f "$BuildModeOption"
-        Invoke-NativeCommand -ScriptBlock {
-            Invoke-Expression $AgentBuildCommand | Tee-Object -FilePath $LogsPath/build_agent.log
-        }
+        $AgentCmd = "scons -j 4 {0} contrail-vrouter-agent.msi" -f "$BuildModeOption | Tee-Object -FilePath $LogsPath/build_agent.log"
+        Invoke-NativeCommand -Command $AgentCmd
     })
 
     $agentMSI = "build\$BuildMode\vnsw\agent\contrail\contrail-vrouter-agent.msi"
@@ -271,22 +242,19 @@ function Run-Test {
     Write-Host "===> Agent tests: running $TestExecutable..."
     $Res = Invoke-Command -ScriptBlock {
         $ErrorActionPreference = "SilentlyContinue"
-        $TestOutput = Invoke-NativeCommand -AllowNonZero $true -ScriptBlock {
-            Invoke-Expression $TestExecutable
-        }
-        $ExitCode = $TestOutput[-1]
-        $TestOutput.ForEach({ Write-Host $_ })
+        $CmdRet = Invoke-NativeCommand -Command $TestExecutable -AllowNonZero $true
+        $CmdRet.Output.ForEach({ Write-Host $_ })
 
         # This is a workaround for the following bug:
         # https://bugs.launchpad.net/opencontrail/+bug/1714205
         # Even if all tests actually pass, test executables can sometimes
         # return non-zero exit code.
         # TODO: It should be removed once the bug is fixed (JW-1110).
-        $SeemsLegitimate = Test-IfGTestOutputSuggestsThatAllTestsHavePassed -TestOutput $TestOutput
-        if ($ExitCode -eq 0 -or $SeemsLegitimate) {
+        $SeemsLegitimate = Test-IfGTestOutputSuggestsThatAllTestsHavePassed -TestOutput $CmdRet.Output
+        if ($CmdRet.ExitCode -eq 0 -or $SeemsLegitimate) {
             return 0
         } else {
-            return $ExitCode
+            return $CmdRet.ExitCode
         }
     }
 
@@ -349,10 +317,8 @@ function Invoke-AgentTestsBuild {
         if ($Tests.count -gt 0) {
             $TestsString = $Tests -join " "
         }
-        $TestsBuildCommand = "scons -j 4 {0} {1}" -f "$BuildModeOption", "$TestsString"
-        Invoke-NativeCommand -ScriptBlock {
-            Invoke-Expression $TestsBuildCommand | Tee-Object -FilePath $LogsPath/build_agent_tests.log
-        }
+        $TestsCmd = "scons -j 4 {0} {1}" -f "$BuildModeOption", "$TestsString | Tee-Object -FilePath $LogsPath/build_agent_tests.log"
+        Invoke-NativeCommand -Command $TestsCmd
     })
 
     $rootBuildDir = "build\$BuildMode"

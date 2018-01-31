@@ -1,6 +1,6 @@
 function Invoke-NativeCommand {
     Param (
-        [Parameter(Mandatory = $true)] [ScriptBlock] $ScriptBlock,
+        [Parameter(Mandatory = $true)] [String] $Command,
         [Parameter(Mandatory = $false)] [Bool] $AllowNonZero = $false
     )
     # Utility wrapper.
@@ -19,19 +19,15 @@ function Invoke-NativeCommand {
     #
     # Note: The command has to return 0 exitcode to be considered successful.
 
-    $Global:LastExitCode = $null
-
-    & {
-        & $ScriptBlock
-    }
+    $Ret = "" | Select-Object -Property ExitCode, Output
+    $Ret.Output = cmd.exe /c "$Command 2>&1"
 
     if ($AllowNonZero -eq $false -and $LastExitCode -ne 0) {
         throw "Command ``$block`` failed with exitcode: $LastExitCode"
     }
 
-    if ($AllowNonZero) {
-        Write-Output $LastExitCode
-    }
-
+    $Ret.ExitCode = $Global:LastExitCode
     $Global:LastExitCode = $null
+
+    return $Ret
 }
