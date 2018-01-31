@@ -329,7 +329,7 @@ function Invoke-AgentTestsBuild {
             "agent:test_physical_devices"
         )
 
-        $CmdRet = Invoke-NativeCommand -Command @("scons", "-j", "4", $BuildModeOption) + $Tests
+        $CmdRet = Invoke-NativeCommand -Command $(@("scons", "-j", "4", $BuildModeOption) + $Tests)
         $CmdRet.Output | Out-File $LogsPath/build_agent_tests.log
     })
 
