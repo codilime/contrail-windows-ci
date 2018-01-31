@@ -31,7 +31,7 @@ function Run-TestScenarios {
         # Test-AgentService -Session $Sessions[0] -TestConfiguration $TestConfiguration
         # Test-ExtensionLongLeak -Session $Sessions[0] -TestDurationHours $Env:LEAK_TEST_DURATION -TestConfiguration $TestConfiguration
         # Test-MultiEnableDisableExtension -Session $Sessions[0] -EnableDisableCount $Env:MULTI_ENABLE_DISABLE_EXTENSION_COUNT -TestConfiguration $TestConfiguration
-        # Test-VTestScenarios -Session $Sessions[0] -TestConfiguration $TestConfiguration
+        Test-VTestScenarios -Session $Sessions[0] -TestConfiguration $TestConfiguration
         # Test-TCPCommunication -Session $Sessions[0] -TestConfiguration $TestConfiguration
         # Test-ICMPoMPLSoGRE -Session1 $Sessions[0] -Session2 $Sessions[1] -TestConfiguration $TestConfiguration
         # Test-TCPoMPLSoGRE -Session1 $Sessions[0] -Session2 $Sessions[1] -TestConfiguration $TestConfiguration
@@ -44,10 +44,10 @@ function Run-TestScenarios {
         # Test-DockerDriverMultiTenancy -Session $Sessions[0] -TestConfiguration $TestConfiguration
         # Test-WindowsLinuxIntegration -Session $Sessions[0] -TestConfiguration (Get-TestConfigurationWindowsLinux)
         # Test-Pkt0PipeImplementation -Session $Sessions[0] -TestConfiguration $TestConfiguration
-        
-        # if($Env:RUN_DRIVER_TESTS -eq "1") {
-        #     Test-DockerDriver -Session $Sessions[0] -TestConfiguration $TestConfiguration
-        # }
+
+        if($Env:RUN_DRIVER_TESTS -eq "1") {
+            Test-DockerDriver -Session $Sessions[0] -TestConfiguration $TestConfiguration
+        }
     })
 
     $TotalFailedCount = 0
@@ -109,6 +109,7 @@ function Run-Tests {
     catch {
         Write-Host $_
 
+        # FIXME Store these logs in separate file
         Collect-Logs -Sessions $Sessions
 
         throw
