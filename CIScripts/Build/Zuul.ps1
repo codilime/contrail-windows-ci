@@ -31,7 +31,7 @@ function Clone-ZuulRepos {
     )
 
     $Job.Step("Cloning zuul repositories", {
-        Invoke-NativeCommand -Command @(,"zuul-cloner.exe" + $ZuulClonerOptions + $ProjectList)
+        Invoke-NativeCommand -Command @("zuul-cloner.exe") + $ZuulClonerOptions + $ProjectList
     })
 }
 
