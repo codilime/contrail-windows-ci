@@ -147,7 +147,8 @@ function Invoke-ExtensionBuild {
     $Job.Step("Building Extension and Utils", {
         $BuildModeOption = "--optimization=" + $BuildMode
         $Env:cerp = Get-Content $CertPasswordFilePath
-        Invoke-NativeCommand -Command "scons $BuildModeOption vrouter | Tee-Object -FilePath $LogsDir/vrouter_build.log"
+        $CmdRet = Invoke-NativeCommand -Command "scons $BuildModeOption vrouter"
+        $CmdRet.Output | Out-File $LogsDir/vrouter_build.log
     })
 
     $vRouterRoot = "build\{0}\vrouter" -f $BuildMode
@@ -196,13 +197,13 @@ function Invoke-AgentBuild {
     $BuildModeOption = "--optimization=" + $BuildMode
 
     $Job.Step("Building API", {
-        $ApiCmd = "scons $BuildModeOption controller/src/vnsw/contrail_vrouter_api:sdist | Tee-Object -FilePath $LogsPath/build_api.log"
-        Invoke-NativeCommand -Command $ApiCmd
+        $CmdRet = Invoke-NativeCommand -Command "scons $BuildModeOption controller/src/vnsw/contrail_vrouter_api:sdist"
+        $CmdRet.Output | Out-File $LogsPath/build_api.log
     })
 
     $Job.Step("Building contrail-vrouter-agent.exe and .msi", {
-        $AgentCmd = "scons -j 4 {0} contrail-vrouter-agent.msi" -f "$BuildModeOption | Tee-Object -FilePath $LogsPath/build_agent.log"
-        Invoke-NativeCommand -Command $AgentCmd
+        $CmdRet = Invoke-NativeCommand -Command "scons -j 4 {0} contrail-vrouter-agent.msi" -f "$BuildModeOption"
+        $CmdRet.Output | Out-File $LogsPath/build_agent.log
     })
 
     $agentMSI = "build\$BuildMode\vnsw\agent\contrail\contrail-vrouter-agent.msi"
@@ -243,7 +244,6 @@ function Run-Test {
     $Res = Invoke-Command -ScriptBlock {
         $ErrorActionPreference = "SilentlyContinue"
         $CmdRet = Invoke-NativeCommand -Command $TestExecutable -AllowNonZero $true
-        $CmdRet.Output.ForEach({ Write-Host $_ })
 
         # This is a workaround for the following bug:
         # https://bugs.launchpad.net/opencontrail/+bug/1714205
@@ -317,8 +317,8 @@ function Invoke-AgentTestsBuild {
         if ($Tests.count -gt 0) {
             $TestsString = $Tests -join " "
         }
-        $TestsCmd = "scons -j 4 {0} {1}" -f "$BuildModeOption", "$TestsString | Tee-Object -FilePath $LogsPath/build_agent_tests.log"
-        Invoke-NativeCommand -Command $TestsCmd
+        $CmdRet = Invoke-NativeCommand -Command "scons -j 4 {0} {1}" -f "$BuildModeOption", "$TestsString"
+        $CmdRet.Output | Out-File $LogsPath/build_agent_tests.log
     })
 
     $rootBuildDir = "build\$BuildMode"
