@@ -1,23 +1,3 @@
-function Invoke-NativeCommandImpl {
-    Param (
-        [Parameter(Mandatory = $true)] [ScriptBlock] $ScriptBlock
-    )
-    & {
-        #$ErrorActionPreference = "SilentlyContinue"
-        write-host $ErrorActionPreference
-        write-host "kek"
-        write-host $Error
-        & $ScriptBlock
-        write-host $ErrorActionPreference
-        write-host "kek"
-        write-host $Error
-
-        $Error.Clear()
-        $Global:Error.Clear()
-    }
-    return $LastExitCode
-}
-
 function Invoke-NativeCommand {
     Param (
         [Parameter(Mandatory = $true)] [ScriptBlock] $ScriptBlock,
@@ -41,10 +21,26 @@ function Invoke-NativeCommand {
 
     $Global:LastExitCode = $null
 
-    $exitCode = Invoke-NativeCommandImpl -ScriptBlock $ScriptBlock -ErrorAction "Ignore"
+    & {
+        $ErrorActionPreference = "SilentlyContinue"
+        write-host $ErrorActionPreference
+        write-host "kek"
+        write-host $Error
+        & $ScriptBlock
+        write-host $ErrorActionPreference
+        write-host "kek"
+        write-host $Error
 
-    if ($AllowNonZero -eq $false -and $exitCode -ne 0) {
+        $Error.Clear()
+        $Global:Error.Clear()
+    }
+
+    if ($AllowNonZero -eq $false -and $LastExitCode -ne 0) {
         throw "Command ``$block`` failed with exitcode: $LastExitCode"
+    }
+
+    if ($AllowNonZero) {
+        Write-Output $LastExitCode
     }
 
     $Global:LastExitCode = $null

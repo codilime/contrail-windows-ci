@@ -33,6 +33,8 @@ function Clone-ZuulRepos {
     $Job.Step("Cloning zuul repositories", {
         Invoke-NativeCommand -ScriptBlock {
             zuul-cloner.exe @ZuulClonerOptions @ProjectList
+            $Error.Clear()
+            $Global:Error.Clear()
         }
     })
 }
