@@ -30,6 +30,9 @@ function Invoke-NativeCommand {
         write-host $ErrorActionPreference
         write-host "kek"
         write-host $Error
+
+        $Error.Clear()
+        $Global:Error.Clear()
     }
 
     if ($AllowNonZero -eq $false -and $LastExitCode -ne 0) {
