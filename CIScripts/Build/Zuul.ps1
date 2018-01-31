@@ -17,7 +17,7 @@ function Clone-ZuulRepos {
         "--map=./CIScripts/clonemap.yml",
         "--verbose",
         $GerritUrl
-    ) -join " "
+    )
 
     # TODO(sodar): Get project list from clonemap.yml
     $ProjectList = @(
@@ -28,10 +28,10 @@ function Clone-ZuulRepos {
         "Juniper/contrail-third-party",
         "Juniper/contrail-sandesh",
         "Juniper/contrail-common"
-    ) -join " "
+    )
 
     $Job.Step("Cloning zuul repositories", {
-        Invoke-NativeCommand -Command "zuul-cloner.exe $ZuulClonerOptions $ProjectList"
+        Invoke-NativeCommand -Command @("zuul-cloner.exe", $ZuulClonerOptions, $ProjectList)
     })
 }
 
