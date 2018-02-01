@@ -126,7 +126,7 @@ pipeline {
                             node(label: 'tester') {
                                 deleteDir()
                                 unstash "CIScripts"
-                                // powershell script: './CIScripts/Test.ps1'
+                                powershell script: './CIScripts/Test.ps1'
                             }
                         }
                     }
