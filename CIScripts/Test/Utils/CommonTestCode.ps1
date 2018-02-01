@@ -185,3 +185,71 @@ function Ping-Container {
 
     Assert-PingSucceeded -Output $PingOutput
 }
+
+function Install-Msi {
+    Param (
+        [Switch] $Uninstall,
+        [Parameter(Mandatory = $true)] [System.Management.Automation.Runspaces.PSSession] $Session,
+        [Parameter(Mandatory = $true)] [String] $Path
+    )
+
+    $Action = if ($Uninstall) { "/x" } else { "/i" }
+
+    Invoke-Command -Session $Session -ScriptBlock {
+        $Result = Start-Process msiexec.exe -ArgumentList @($Using:Action, $Using:Path, "/quiet") -Wait -PassThru
+        if ($Result.ExitCode -ne 0) {
+            throw "Installation of $Using:Path failed with $($Result.ExitCode)"
+        }
+
+        # Refresh Path
+        $Env:Path = [System.Environment]::GetEnvironmentVariable("Path", "Machine")
+    }
+}
+
+function Install-Agent {
+    Param ([Parameter(Mandatory = $true)] [System.Management.Automation.Runspaces.PSSession] $Session)
+
+    Write-Host "Installing Agent"
+    Install-Msi -Session $Session -Path "C:\Artifacts\contrail-vrouter-agent.msi"
+
+    Start-Sleep -s $WAIT_TIME_FOR_AGENT_SERVICE_IN_SECONDS
+}
+
+function Uninstall-Agent {
+    Param ([Parameter(Mandatory = $true)] [System.Management.Automation.Runspaces.PSSession] $Session)
+
+    Write-Host "Uninstalling Agent"
+    Install-Msi -Uninstall -Session $Session -Path "C:\Artifacts\contrail-vrouter-agent.msi"
+
+    Start-Sleep -s $WAIT_TIME_FOR_AGENT_SERVICE_IN_SECONDS
+}
+
+
+function Install-Extension {
+    Param ([Parameter(Mandatory = $true)] [System.Management.Automation.Runspaces.PSSession] $Session)
+
+    Write-Host "Installing vRouter Extension"
+    Install-Msi -Session $Session -Path "C:\Artifacts\vRouter.msi"
+}
+
+function Uninstall-Extension {
+    Param ([Parameter(Mandatory = $true)] [System.Management.Automation.Runspaces.PSSession] $Session)
+
+    Write-Host "Uninstalling vRouter extension"
+    Install-Msi -Uninstall -Session $Session -Path "C:\Artifacts\vRouter.msi"
+}
+
+
+function Install-Utils {
+    Param ([Parameter(Mandatory = $true)] [System.Management.Automation.Runspaces.PSSession] $Session)
+
+    Write-Host "Installing vRouter utilities"
+    Install-Msi -Session $Session -Path "C:\Artifacts\utils.msi"
+}
+
+function Uninstall-Utils {
+    Param ([Parameter(Mandatory = $true)] [System.Management.Automation.Runspaces.PSSession] $Session)
+
+    Write-Host "Uninstalling vRouter utilities"
+    Install-Msi -Uninstall -Session $Session -Path "C:\Artifacts\utils.msi"
+}
