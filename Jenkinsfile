@@ -93,7 +93,7 @@ pipeline {
                                     vmwareConfig = getVMwareConfig()
                                     inventoryFilePath = "${env.WORKSPACE}/ansible/vm.${env.BUILD_ID}"
                                     testEnvName = generateTestEnvName()
-                                    testEnvFolder = env.VC_FOLDER
+                                    testEnvFolder = "${env.VC_FOLDER}/${dataNetwork}"
                                 }
 
                                 prepareTestEnv(inventoryFilePath, testEnvName, testEnvFolder,
