@@ -178,6 +178,7 @@ function Invoke-ExtensionBuild {
     $vRouterMSI = "$vRouterRoot\extension\vRouter.msi"
     $vRouterCert = "$vRouterRoot\extension\vRouter.cer"
     $utilsMSI = "$vRouterRoot\utils\utils.msi"
+    $vTestSrcPath = "vrouter\utils\vtest\"
     $vTestPath = "$vRouterRoot\utils\vtest\"
 
     Write-Host "Signing utilsMSI"
@@ -196,7 +197,10 @@ function Invoke-ExtensionBuild {
         Copy-Item $utilsMSI $OutputPath -Recurse -Container
         Copy-Item $vRouterMSI $OutputPath -Recurse -Container
         Copy-Item $vRouterCert $OutputPath -Recurse -Container
-        Copy-Item $vTestPath "$OutputPath\utils\vtest" -Recurse -Container
+        New-Item -Type Directory -Path "$OutputPath\utils\vtest" | Out-Null
+        Copy-Item "$vTestSrcPath\tests" "$OutputPath\utils\vtest" -Recurse -Filter "*.xml"
+        Copy-Item "$vTestSrcPath\*.ps1" "$OutputPath\utils\vtest"
+        Copy-Item "$vTestPath\*" "$OutputPath\utils\vtest" -Recurse -Container
     })
 
     $Job.PopStep()
