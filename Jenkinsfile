@@ -28,7 +28,7 @@ pipeline {
 
                 script {
                     mgmtNetwork = env.TESTENV_MGMT_NETWORK
-                    dataNetwork = calculateTestNetwork(env.BUILD_ID as int)
+                    dataNetwork = "VLAN_515_TestEnv"
                 }
 
                 // If not using `Pipeline script from SCM`, specify the branch manually:
@@ -85,7 +85,6 @@ pipeline {
             steps {
                 script {
                     try {
-                        lock(dataNetwork) {
                             // 'Provision' stage
                             node(label: 'ansible') {
                                 deleteDir()
@@ -128,7 +127,6 @@ pipeline {
                                 unstash "CIScripts"
                                 powershell script: './CIScripts/Test.ps1'
                             }
-                        }
                     }
                     catch(err) {
                         echo "Error occured during test stage: ${err}"
@@ -139,7 +137,7 @@ pipeline {
             post {
                 always {
                     node(label: 'ansible') {
-                        destroyTestEnv(vmwareConfig)
+                        // destroyTestEnv(vmwareConfig)
                     }
                 }
             }
