@@ -1,7 +1,7 @@
 library "contrailWindows@$BRANCH_NAME"
 
 def mgmtNetwork
-def dataNetwork
+def testNetwork
 def vmwareConfig
 def inventoryFilePath
 def testEnvName
@@ -27,7 +27,6 @@ pipeline {
 
                 script {
                     mgmtNetwork = env.TESTENV_MGMT_NETWORK
-                    dataNetwork = calculateTestNetwork(env.BUILD_ID as int)
                 }
 
                 // If not using `Pipeline script from SCM`, specify the branch manually:
@@ -83,49 +82,48 @@ pipeline {
             steps {
                 script {
                     try {
-                        lock(dataNetwork) {
-                            // 'Provision' stage
+                        lock('vmware-lock') {
                             node(label: 'ansible') {
                                 deleteDir()
                                 unstash 'ansible'
 
-                                script {
-                                    vmwareConfig = getVMwareConfig()
-                                    inventoryFilePath = "${env.WORKSPACE}/ansible/vm.${env.BUILD_ID}"
-                                    testEnvName = generateTestEnvName()
-                                    testEnvFolder = "${env.VC_FOLDER}/${dataNetwork}"
-                                }
-
-                                prepareTestEnv(inventoryFilePath, testEnvName, testEnvFolder,
-                                               mgmtNetwork, dataNetwork,
-                                               env.TESTBED_TEMPLATE, env.CONTROLLER_TEMPLATE)
-                                provisionTestEnv(vmwareConfig)
-
-                                script {
-                                    testbeds = parseTestbedAddresses(inventoryFilePath)
-                                }
+                                testNetwork = selectNetworkAndLock(env.VC_FIRST_TEST_NETWORK_ID, env.VC_TEST_NETWORKS_COUNT)
                             }
+                        }
 
-                            // 'Deploy' stage
-                            node(label: 'tester') {
-                                deleteDir()
-
-                                unstash "CIScripts"
-                                unstash "WinArt"
-
-                                script {
-                                    env.TESTBED_ADDRESSES = testbeds.join(',')
-                                }
-
-                                powershell script: './CIScripts/Deploy.ps1'
+                        // 'Provision' stage
+                        node(label: 'ansible') {
+                            deleteDir()
+                            unstash 'ansible'
+                            script {
+                                vmwareConfig = getVMwareConfig()
+                                inventoryFilePath = "${env.WORKSPACE}/ansible/vm.${env.BUILD_ID}"
+                                testEnvName = generateTestEnvName()
+                                testEnvFolder = "${env.VC_FOLDER}/${testNetwork}"
                             }
-
-                            // 'Test' stage
-                            node(label: 'tester') {
-                                deleteDir()
-                                unstash "CIScripts"
-                                // powershell script: './CIScripts/Test.ps1'
+                            prepareTestEnv(inventoryFilePath, testEnvName, testEnvFolder,
+                                           mgmtNetwork, testNetwork,
+                                           env.TESTBED_TEMPLATE, env.CONTROLLER_TEMPLATE)
+                            provisionTestEnv(vmwareConfig)
+                            script {
+                                testbeds = parseTestbedAddresses(inventoryFilePath)
                             }
+                        }
+                        // 'Deploy' stage
+                        node(label: 'tester') {
+                            deleteDir()
+                            unstash "CIScripts"
+                            unstash "WinArt"
+                            script {
+                                env.TESTBED_ADDRESSES = testbeds.join(',')
+                            }
+                            powershell script: './CIScripts/Deploy.ps1'
+                        }
+                        // 'Test' stage
+                        node(label: 'tester') {
+                            deleteDir()
+                            unstash "CIScripts"
+                            // powershell script: './CIScripts/Test.ps1'
                         }
                     }
                     catch(err) {
@@ -138,6 +136,7 @@ pipeline {
                 always {
                     node(label: 'ansible') {
                         destroyTestEnv(vmwareConfig)
+                        unlockNetwork(testNetwork)
                     }
                 }
             }
