@@ -4,6 +4,8 @@ import atexit
 import argparse
 import getpass
 import time
+import re
+import random
 from pyVim.connect import SmartConnectNoSSL, Disconnect
 from pyVmomi import vim, vmodl
 
@@ -36,9 +38,21 @@ def get_args():
                         action='store',
                         help='') # TODO: fill
 
-    parser.add_argument('--name',
+    parser.add_argument('--network-name-out-file',
                         required=True,
                         action='store',
+                        help='') # TODO: fill
+
+    parser.add_argument('--first-network-id',
+                        required=True,
+                        action='store',
+                        type=int,
+                        help='') # TODO: fill
+
+    parser.add_argument('--networks-count',
+                        required=True,
+                        action='store',
+                        type=int,
                         help='') # TODO: fill
 
     args = parser.parse_args()
@@ -65,6 +79,15 @@ def get_obj(content, vimtype, name, folder=None):
             break
     return obj
 
+NETWORK_NAME_PATTERN = re.compile('^VLAN_([0-9]+)_TestEnv$')
+
+def is_network_testnet(name, testnets_range):
+    match = NETWORK_NAME_PATTERN.match(name)
+    if not match:
+        return False
+
+    return testnets_range[0] <= int(match.group(1)) <= testnets_range[1]
+
 def main():
     args = get_args()
 
@@ -86,13 +109,23 @@ def main():
         raise Exception("Couldn't find the Folder with the provided name "
                         "'{}'".format(args.folder))
 
-    while find_folder(content, args.datacenter, '{}/{}'.format(args.folder, args.name)):
-        time.sleep(10)
+    testnets_range = (args.first_network_id, args.first_network_id + args.networks_count - 1)
+    available_testnets = [net.name for net in datacenter.network if is_network_testnet(net.name, testnets_range)]
+    random.shuffle(available_testnets)
 
-    subfolder = folder.CreateFolder(args.name)
-    if not subfolder:
-        raise Exception("Couldn't create the Folder with the provided name "
-                        "'{}'".format(args.name))
+    while True:
+        for name in available_testnets:
+            if not find_folder(content, args.datacenter, '{}/{}'.format(args.folder, name)):
+                with open(args.network_name_out_file, 'w') as f:
+                    f.write(name)
+
+                subfolder = folder.CreateFolder(name)
+                if not subfolder:
+                    raise Exception("Couldn't create the Folder with the selected name "
+                                    "'{}'".format(name))
+                return 0
+
+        time.sleep(10)
 
     return 0
 
