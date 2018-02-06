@@ -1,3 +1,4 @@
+#!groovy
 library "contrailWindows@$BRANCH_NAME"
 
 def mgmtNetwork
@@ -82,62 +83,68 @@ pipeline {
             }
             steps {
                 script {
-                    try {
-                        lock(dataNetwork) {
-                            // 'Provision' stage
-                            node(label: 'ansible') {
-                                deleteDir()
-                                unstash 'ansible'
+                    if(env.DONT_CREATE_TESTBEDS == null) {
+                        try {
+                            lock(dataNetwork) {
+                                // 'Provision' stage
+                                node(label: 'ansible') {
+                                    deleteDir()
+                                    unstash 'ansible'
 
-                                script {
-                                    vmwareConfig = getVMwareConfig()
-                                    inventoryFilePath = "${env.WORKSPACE}/ansible/vm.${env.BUILD_ID}"
-                                    testEnvName = generateTestEnvName()
-                                    testEnvFolder = env.VC_FOLDER
+                                    script {
+                                        vmwareConfig = getVMwareConfig()
+                                        inventoryFilePath = "${env.WORKSPACE}/ansible/vm.${env.BUILD_ID}"
+                                        testEnvName = generateTestEnvName()
+                                        testEnvFolder = env.VC_FOLDER
+                                    }
+
+                                    prepareTestEnv(inventoryFilePath, testEnvName, testEnvFolder,
+                                                   mgmtNetwork, dataNetwork,
+                                                   env.TESTBED_TEMPLATE, env.CONTROLLER_TEMPLATE)
+                                    provisionTestEnv(vmwareConfig)
+
+                                    script {
+                                        testbeds = parseTestbedAddresses(inventoryFilePath)
+                                    }
                                 }
 
-                                prepareTestEnv(inventoryFilePath, testEnvName, testEnvFolder,
-                                               mgmtNetwork, dataNetwork,
-                                               env.TESTBED_TEMPLATE, env.CONTROLLER_TEMPLATE)
-                                provisionTestEnv(vmwareConfig)
+                                // 'Deploy' stage
+                                node(label: 'tester') {
+                                    deleteDir()
 
-                                script {
-                                    testbeds = parseTestbedAddresses(inventoryFilePath)
-                                }
-                            }
+                                    unstash "CIScripts"
+                                    unstash "WinArt"
 
-                            // 'Deploy' stage
-                            node(label: 'tester') {
-                                deleteDir()
+                                    script {
+                                        env.TESTBED_ADDRESSES = testbeds.join(',')
+                                    }
 
-                                unstash "CIScripts"
-                                unstash "WinArt"
-
-                                script {
-                                    env.TESTBED_ADDRESSES = testbeds.join(',')
+                                    powershell script: './CIScripts/Deploy.ps1'
                                 }
 
-                                powershell script: './CIScripts/Deploy.ps1'
-                            }
-
-                            // 'Test' stage
-                            node(label: 'tester') {
-                                deleteDir()
-                                unstash "CIScripts"
-                                // powershell script: './CIScripts/Test.ps1'
+                                // 'Test' stage
+                                node(label: 'tester') {
+                                    deleteDir()
+                                    unstash "CIScripts"
+                                    // powershell script: './CIScripts/Test.ps1'
+                                }
                             }
                         }
-                    }
-                    catch(err) {
-                        echo "Error occured during test stage: ${err}"
-                        currentBuild.result = "SUCCESS"
+                        catch(err) {
+                            echo "Error occured during test stage: ${err}"
+                            currentBuild.result = "SUCCESS"
+                        }
                     }
                 }
             }
             post {
                 always {
                     node(label: 'ansible') {
-                        destroyTestEnv(vmwareConfig)
+                        script {
+                            if (env.DONT_CREATE_TESTBEDS == null) {
+                                destroyTestEnv(vmwareConfig)
+                            }
+                        }
                     }
                 }
             }
