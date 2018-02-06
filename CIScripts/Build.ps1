@@ -59,11 +59,13 @@ Prepare-BuildEnvironment -ThirdPartyCache $Env:THIRD_PARTY_CACHE_PATH
 $DockerDriverOutputDir = "output/docker_driver"
 $vRouterOutputDir = "output/vrouter"
 $AgentOutputDir = "output/agent"
+$DllsOutputDir = "output/dlls"
 $LogsDir = "logs"
 
 New-Item -ItemType directory -Path $DockerDriverOutputDir
 New-Item -ItemType directory -Path $vRouterOutputDir
 New-Item -ItemType directory -Path $AgentOutputDir
+New-Item -ItemType directory -Path $DllsOutputDir
 New-Item -ItemType directory -Path $LogsDir
 
 $ComponentsToBuild = Get-ComponentsToBuild
@@ -101,6 +103,8 @@ if ("AgentTests" -In $ComponentsToBuild) {
     Invoke-AgentTestsBuild -LogsPath $LogsDir `
         -ReleaseMode $IsReleaseMode
 }
+
+Copy-Dlls -OutputPath $DllsOutputDir -ReleaseMode $isReleaseMode
 
 $Job.Done()
 

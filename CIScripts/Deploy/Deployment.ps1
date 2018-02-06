@@ -63,6 +63,9 @@ function Install-Artifacts {
         }
     }
 
+    Write-Host "Copying dlls"
+    Copy-Item -ToSession $Session -Path "dlls\*" -Destination "C:\Windows\System32\"
+
     Invoke-Command -Session $Session -ScriptBlock {
         # Refresh Path
         $Env:Path = [System.Environment]::GetEnvironmentVariable("Path", "Machine")

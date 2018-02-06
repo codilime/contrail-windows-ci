@@ -255,6 +255,21 @@ function Invoke-AgentBuild {
     $Job.PopStep()
 }
 
+function Copy-Dlls {
+    Param (
+       [Parameter(Mandatory = $true)] [string] $OutputPath,
+       [Parameter(Mandatory = $false)] [bool] $ReleaseMode = $false
+    )
+
+    $Job.Step("Copying dlls to $OutputPath", {
+        if (-not $ReleaseMode) {
+            foreach ($Lib in @("ucrtbased.dll", "vcruntime140d.dll")) {
+                Copy-Item "C:\Windows\System32\$Lib" $OutputPath
+            }
+        }
+    })
+}
+
 function Test-IfGTestOutputSuggestsThatAllTestsHavePassed {
     Param ([Parameter(Mandatory = $true)] [Object[]] $TestOutput)
     $NumberOfTests = -1
