@@ -71,6 +71,7 @@ pipeline {
         // NOTE: Currently nesting multiple stages in lock directive is unsupported
         stage('Provision & Deploy & Test') {
             agent none
+            when { environment name: "DONT_CREATE_TESTBEDS", value: null }
             environment {
                 // Required in 'Provision' stages
                 VC = credentials('vcenter')
@@ -83,68 +84,62 @@ pipeline {
             }
             steps {
                 script {
-                    if(env.DONT_CREATE_TESTBEDS == null) {
-                        try {
-                            lock(dataNetwork) {
-                                // 'Provision' stage
-                                node(label: 'ansible') {
-                                    deleteDir()
-                                    unstash 'ansible'
+                    try {
+                        lock(dataNetwork) {
+                            // 'Provision' stage
+                            node(label: 'ansible') {
+                                deleteDir()
+                                unstash 'ansible'
 
-                                    script {
-                                        vmwareConfig = getVMwareConfig()
-                                        inventoryFilePath = "${env.WORKSPACE}/ansible/vm.${env.BUILD_ID}"
-                                        testEnvName = generateTestEnvName()
-                                        testEnvFolder = env.VC_FOLDER
-                                    }
-
-                                    prepareTestEnv(inventoryFilePath, testEnvName, testEnvFolder,
-                                                   mgmtNetwork, dataNetwork,
-                                                   env.TESTBED_TEMPLATE, env.CONTROLLER_TEMPLATE)
-                                    provisionTestEnv(vmwareConfig)
-
-                                    script {
-                                        testbeds = parseTestbedAddresses(inventoryFilePath)
-                                    }
+                                script {
+                                    vmwareConfig = getVMwareConfig()
+                                    inventoryFilePath = "${env.WORKSPACE}/ansible/vm.${env.BUILD_ID}"
+                                    testEnvName = generateTestEnvName()
+                                    testEnvFolder = env.VC_FOLDER
                                 }
 
-                                // 'Deploy' stage
-                                node(label: 'tester') {
-                                    deleteDir()
+                                prepareTestEnv(inventoryFilePath, testEnvName, testEnvFolder,
+                                               mgmtNetwork, dataNetwork,
+                                               env.TESTBED_TEMPLATE, env.CONTROLLER_TEMPLATE)
+                                provisionTestEnv(vmwareConfig)
 
-                                    unstash "CIScripts"
-                                    unstash "WinArt"
-
-                                    script {
-                                        env.TESTBED_ADDRESSES = testbeds.join(',')
-                                    }
-
-                                    powershell script: './CIScripts/Deploy.ps1'
-                                }
-
-                                // 'Test' stage
-                                node(label: 'tester') {
-                                    deleteDir()
-                                    unstash "CIScripts"
-                                    // powershell script: './CIScripts/Test.ps1'
+                                script {
+                                    testbeds = parseTestbedAddresses(inventoryFilePath)
                                 }
                             }
+
+                            // 'Deploy' stage
+                            node(label: 'tester') {
+                                deleteDir()
+
+                                unstash "CIScripts"
+                                unstash "WinArt"
+
+                                script {
+                                    env.TESTBED_ADDRESSES = testbeds.join(',')
+                                }
+
+                                powershell script: './CIScripts/Deploy.ps1'
+                            }
+
+                            // 'Test' stage
+                            node(label: 'tester') {
+                                deleteDir()
+                                unstash "CIScripts"
+                                // powershell script: './CIScripts/Test.ps1'
+                            }
                         }
-                        catch(err) {
-                            echo "Error occured during test stage: ${err}"
-                            currentBuild.result = "SUCCESS"
-                        }
+                    }
+                    catch(err) {
+                        echo "Error occured during test stage: ${err}"
+                        currentBuild.result = "SUCCESS"
                     }
                 }
             }
             post {
                 always {
                     node(label: 'ansible') {
-                        script {
-                            if (env.DONT_CREATE_TESTBEDS == null) {
-                                destroyTestEnv(vmwareConfig)
-                            }
-                        }
+                        destroyTestEnv(vmwareConfig)
                     }
                 }
             }
