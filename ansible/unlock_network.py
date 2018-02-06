@@ -36,7 +36,7 @@ def get_args():
                         action='store',
                         help='') # TODO: fill
 
-    parser.add_argument('--network-name-in-file',
+    parser.add_argument('--network-name',
                         required=True,
                         action='store',
                         help='') # TODO: fill
@@ -81,10 +81,7 @@ def main():
         raise Exception("Couldn't find the Datacenter with the provided name "
                         "'{}'".format(args.datacenter))
 
-    with open(args.network_name_in_file, 'r') as f:
-        network_name = f.read()
-
-    folder_name = '{}/{}'.format(args.folder, network_name)
+    folder_name = '{}/{}'.format(args.folder, args.network_name)
     folder = find_folder(content, args.datacenter, folder_name)
     if not folder:
         raise Exception("Couldn't find the Folder with the provided name "
