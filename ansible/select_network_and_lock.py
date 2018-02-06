@@ -111,6 +111,10 @@ def main():
 
     testnets_range = (args.first_network_id, args.first_network_id + args.networks_count - 1)
     available_testnets = [net.name for net in datacenter.network if is_network_testnet(net.name, testnets_range)]
+
+    if not available_testnets:
+        raise Exception("No networks available")
+
     random.shuffle(available_testnets)
 
     while True:
