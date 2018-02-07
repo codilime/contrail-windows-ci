@@ -16,6 +16,22 @@ pipeline {
         timeout time: 5, unit: 'HOURS'
     }
 
+    environment {
+        VC = credentials('vcenter')
+        // TODO actually create this file
+        TEST_CONFIGURATION_FILE = "GetTestConfigurationJuni.ps1"
+        TESTBED = credentials('win-testbed')
+        ARTIFACTS_DIR = "output"
+
+        LOG_SERVER = "logs.opencontrail.org"
+        LOG_SERVER_USER = "zuul-win"
+        LOG_ROOT_DIR = "/var/www/logs/winci"
+        BUILD_SPECIFIC_DIR = "${ZUUL_UUID}"
+        JOB_SUBDIR = env.JOB_NAME.replaceAll("/", "/jobs/")
+        LOCAL_SRC_FILE = "${JENKINS_HOME}/jobs/${JOB_SUBDIR}/builds/${BUILD_ID}/log"
+        REMOTE_DST_FILE = "${LOG_ROOT_DIR}/${BUILD_SPECIFIC_DIR}/log.txt"
+    }
+
     stages {
         stage('Preparation') {
             agent { label 'builder' }
@@ -62,99 +78,132 @@ pipeline {
             }
         }
 
-        // Variables are not supported in declarative pipeline.
-        // Possible workaround: store SpawnedTestbedVMNames in stashed file.
-        // def SpawnedTestbedVMNames = ''
-
-        // NOTE: Currently nesting multiple stages in lock directive is unsupported
-        stage('Provision & Deploy & Test') {
-            agent none
-            environment {
-                // Required in 'Provision' stages
-                VC = credentials('vcenter')
-
-                // Required in 'Deploy' and 'Test' stages
-                // TODO actually create this file
-                TEST_CONFIGURATION_FILE = "GetTestConfigurationJuni.ps1"
-                TESTBED = credentials('win-testbed')
-                ARTIFACTS_DIR = "output"
-            }
+        stage('Lock') {
+            agent { label 'ansible' }
             steps {
                 script {
                     try {
                         lock('vmware-lock') {
-                            node(label: 'ansible') {
-                                deleteDir()
-                                unstash 'ansible'
+                            deleteDir()
+                            unstash 'ansible'
 
+                            script {
                                 testNetwork = selectNetworkAndLock(env.VC_FIRST_TEST_NETWORK_ID, env.VC_TEST_NETWORKS_COUNT)
                             }
                         }
-
-                        // 'Provision' stage
-                        node(label: 'ansible') {
-                            deleteDir()
-                            unstash 'ansible'
-                            script {
-                                vmwareConfig = getVMwareConfig()
-                                inventoryFilePath = "${env.WORKSPACE}/ansible/vm.${env.BUILD_ID}"
-                                testEnvName = generateTestEnvName()
-                                testEnvFolder = "${env.VC_FOLDER}/${testNetwork}"
-                            }
-                            prepareTestEnv(inventoryFilePath, testEnvName, testEnvFolder,
-                                           mgmtNetwork, testNetwork,
-                                           env.TESTBED_TEMPLATE, env.CONTROLLER_TEMPLATE)
-                            provisionTestEnv(vmwareConfig)
-                            script {
-                                testbeds = parseTestbedAddresses(inventoryFilePath)
-                            }
-                        }
-                        // 'Deploy' stage
-                        node(label: 'tester') {
-                            deleteDir()
-                            unstash "CIScripts"
-                            unstash "WinArt"
-                            script {
-                                env.TESTBED_ADDRESSES = testbeds.join(',')
-                            }
-                            powershell script: './CIScripts/Deploy.ps1'
-                        }
-                        // 'Test' stage
-                        node(label: 'tester') {
-                            deleteDir()
-                            unstash "CIScripts"
-                            // powershell script: './CIScripts/Test.ps1'
-                        }
                     }
                     catch(err) {
-                        echo "Error occured during test stage: ${err}"
+                        echo "Error occured during Lock stage: ${err}"
                         currentBuild.result = "SUCCESS"
                     }
                 }
             }
-            post {
-                always {
-                    node(label: 'ansible') {
-                        destroyTestEnv(vmwareConfig)
-                        unlockNetwork(testNetwork)
+        }
+
+        stage('Provision') {
+            agent { label 'ansible' }
+            when { expression { return !currentBuild.result } }
+
+            steps {
+                script {
+                    try {
+                        deleteDir()
+                        unstash 'ansible'
+
+                        script {
+                            vmwareConfig = getVMwareConfig()
+                            inventoryFilePath = "${env.WORKSPACE}/ansible/vm.${env.BUILD_ID}"
+                            testEnvName = generateTestEnvName()
+                            testEnvFolder = "${env.VC_FOLDER}/${testNetwork}"
+                        }
+
+                        prepareTestEnv(inventoryFilePath, testEnvName, testEnvFolder,
+                                       mgmtNetwork, testNetwork,
+                                       env.TESTBED_TEMPLATE, env.CONTROLLER_TEMPLATE)
+                        provisionTestEnv(vmwareConfig)
+
+                        script {
+                            testbeds = parseTestbedAddresses(inventoryFilePath)
+                        }
+
+                        stash name: "ansible", includes: "ansible/**"
+                    }
+                    catch(err) {
+                        echo "Error occured during Provision stage: ${err}"
+                        currentBuild.result = "SUCCESS"
+                    }
+                }
+            }
+        }
+
+        stage('Deploy') {
+            agent { label 'tester' }
+            when { expression { return !currentBuild.result } }
+
+            steps {
+                script {
+                    try {
+                        deleteDir()
+                        unstash "CIScripts"
+                        unstash "WinArt"
+
+                        script {
+                            env.TESTBED_ADDRESSES = testbeds.join(',')
+                        }
+
+                        powershell script: './CIScripts/Deploy.ps1'
+                    }
+                    catch(err) {
+                        echo "Error occured during Deploy stage: ${err}"
+                        currentBuild.result = "SUCCESS"
+                    }
+                }
+            }
+        }
+
+        stage('Test') {
+            agent { label 'tester' }
+            when { expression { return !currentBuild.result } }
+
+            steps {
+                script {
+                    try {
+                        deleteDir()
+                        unstash "CIScripts"
+                        // powershell script: './CIScripts/Test.ps1'
+                    }
+                    catch(err) {
+                        echo "Error occured during Test stage: ${err}"
+                        currentBuild.result = "SUCCESS"
                     }
                 }
             }
         }
     }
 
-    environment {
-        LOG_SERVER = "logs.opencontrail.org"
-        LOG_SERVER_USER = "zuul-win"
-        LOG_ROOT_DIR = "/var/www/logs/winci"
-        BUILD_SPECIFIC_DIR = "${ZUUL_UUID}"
-        JOB_SUBDIR = env.JOB_NAME.replaceAll("/", "/jobs/")
-        LOCAL_SRC_FILE = "${JENKINS_HOME}/jobs/${JOB_SUBDIR}/builds/${BUILD_ID}/log"
-        REMOTE_DST_FILE = "${LOG_ROOT_DIR}/${BUILD_SPECIFIC_DIR}/log.txt"
-    }
-
     post {
         always {
+            node(label: 'ansible') {
+                deleteDir()
+                unstash 'ansible'
+
+                script {
+                    try {
+                        destroyTestEnv(vmwareConfig)
+                    }
+                    catch(err) {
+                        echo "Error occured during Post stage (destroying TestEnv): ${err}"
+                    }
+
+                    try {
+                        unlockNetwork(testNetwork)
+                    }
+                    catch(err) {
+                        echo "Error occured during Post stage (unlocking TestNetwork): ${err}"
+                    }
+                }
+            }
+
             node('master') {
                 script {
                     // Job triggered by Zuul -> upload log file to public server.
