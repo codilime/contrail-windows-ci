@@ -53,6 +53,8 @@ if($IsTriggeredByZuul) {
     Get-Repos -Repos $Repos
 }
 
+Invoke-Linters
+
 $IsReleaseMode = [bool]::Parse($Env:BUILD_IN_RELEASE_MODE)
 Initialize-BuildEnvironment -ThirdPartyCache $Env:THIRD_PARTY_CACHE_PATH
 
