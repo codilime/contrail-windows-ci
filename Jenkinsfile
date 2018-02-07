@@ -34,7 +34,7 @@ pipeline {
 
     stages {
         stage('Preparation') {
-            agent { label 'builder' }
+            agent { label 'ansible' }
             steps {
                 deleteDir()
 
