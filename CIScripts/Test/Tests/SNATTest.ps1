@@ -163,6 +163,10 @@ function Test-SNAT {
     }
 
     function Set-EndhostConfiguration {
+        [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingUserNameAndPassWordParams",
+            Justification="We don't care that it's plaintext, it's just test env.")]
+        [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingPlainTextForPassword",
+            "EndhostPassword", Justification="We don't care that it's plaintext, it's just test env.")]
         Param ([Parameter(Mandatory = $true)] [System.Management.Automation.Runspaces.PSSession] $Session,
                [Parameter(Mandatory = $true)] [string] $PhysicalMac,
                [Parameter(Mandatory = $true)] [string] $EndhostIP,
@@ -197,7 +201,6 @@ function Test-SNAT {
         $InternalVrf = 1
         $ExternalVrf = 2
 
-        $ContainerVif = 101
         $ContainerNh = 101
 
         $SNATLeftVif = 102
@@ -206,7 +209,6 @@ function Test-SNAT {
         $SNATRightVif = 103
         $SNATRightNh = 103
 
-        $SNATVethVif = 104
         $SNATVethNh = 104
 
         $BroadcastInternalNh = 110

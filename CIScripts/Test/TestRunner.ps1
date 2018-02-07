@@ -16,7 +16,7 @@
 . $PSScriptRoot\Tests\DockerDriverMultitenancyTest.ps1
 . $PSScriptRoot\Tests\WindowsLinuxIntegrationTests.ps1
 
-function Run-TestScenarios {
+function Invoke-TestScenarios {
     Param (
         [Parameter(Mandatory = $true)] [PSSessionT[]] $Sessions,
         [Parameter(Mandatory = $true)] [String] $TestConfigurationFile
@@ -53,7 +53,7 @@ function Run-TestScenarios {
     })
 }
 
-function Collect-Logs {
+function Get-Logs {
     Param ([Parameter(Mandatory = $true)] [PSSessionT[]] $Sessions)
 
     foreach ($Session in $Sessions) {
@@ -79,19 +79,19 @@ function Collect-Logs {
     }
 }
 
-function Run-Tests {
+function Invoke-IntegrationAndFunctionalTests {
     Param (
         [Parameter(Mandatory = $true)] [PSSessionT[]] $Sessions,
         [Parameter(Mandatory = $true)] [String] $TestConfigurationFile
     )
 
     try {
-        Run-TestScenarios -Sessions $Sessions -TestConfigurationFile $TestConfigurationFile
+        Invoke-TestScenarios -Sessions $Sessions -TestConfigurationFile $TestConfigurationFile
     }
     catch {
         Write-Host $_
 
-        Collect-Logs -Sessions $Sessions
+        Get-Logs -Sessions $Sessions
 
         throw
     }

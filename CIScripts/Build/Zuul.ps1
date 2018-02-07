@@ -1,6 +1,6 @@
 . $PSScriptRoot\..\Common\Invoke-NativeCommand.ps1
 
-function Clone-ZuulRepos {
+function Get-ZuulRepos {
     Param (
         [Parameter(Mandatory = $true)] [string] $GerritUrl,
         [Parameter(Mandatory = $true)] [string] $ZuulProject,
@@ -37,7 +37,7 @@ function Clone-ZuulRepos {
     })
 }
 
-function Clone-NonZuulRepos {
+function Get-NonZuulRepos {
     Param(
         [Parameter(Mandatory = $true)] [string] $DriverSrcPath,
         [Parameter(Mandatory = $true)] [string] $WindowsStubsRepositoryPath,

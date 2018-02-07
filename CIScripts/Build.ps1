@@ -27,13 +27,13 @@ if($IsTriggeredByZuul) {
     # Build is triggered by Zuul, when someone submits a pull
     # request to review.opencontrail.org.
 
-    Clone-ZuulRepos -GerritUrl $Env:GERRIT_URL `
+    Get-ZuulRepos -GerritUrl $Env:GERRIT_URL `
                     -ZuulProject $Env:ZUUL_PROJECT `
                     -ZuulRef $Env:ZUUL_REF `
                     -ZuulUrl $Env:ZUUL_URL `
                     -ZuulBranch $Env:ZUUL_BRANCH
 
-    Clone-NonZuulRepos -DriverSrcPath $Env:DRIVER_SRC_PATH `
+    Get-NonZuulRepos -DriverSrcPath $Env:DRIVER_SRC_PATH `
                        -WindowsStubsRepositoryPath $WindowsStubsRepositoryPath `
                        -WindowsStubsBranch $WindowsStubsBranch
 } else {
@@ -50,11 +50,11 @@ if($IsTriggeredByZuul) {
                               -VRouterBranch $Env:VROUTER_BRANCH `
                               -ControllerBranch $Env:CONTROLLER_BRANCH
 
-    Clone-Repos -Repos $Repos
+    Get-Repos -Repos $Repos
 }
 
 $IsReleaseMode = [bool]::Parse($Env:BUILD_IN_RELEASE_MODE)
-Prepare-BuildEnvironment -ThirdPartyCache $Env:THIRD_PARTY_CACHE_PATH
+Initialize-BuildEnvironment -ThirdPartyCache $Env:THIRD_PARTY_CACHE_PATH
 
 $DockerDriverOutputDir = "output/docker_driver"
 $vRouterOutputDir = "output/vrouter"
@@ -72,7 +72,7 @@ if ("DockerDriver" -In $ComponentsToBuild) {
     Invoke-DockerDriverBuild -DriverSrcPath $Env:DRIVER_SRC_PATH `
         -SigntoolPath $Env:SIGNTOOL_PATH `
         -CertPath $Env:CERT_PATH `
-        -CertPasswordFilePath $Env:CERT_PASSWORD_FILE_PATH `
+        -CertPasswdFilePath $Env:CERT_PASSWORD_FILE_PATH `
         -OutputPath $DockerDriverOutputDir `
         -LogsPath $LogsDir
 }
@@ -81,7 +81,7 @@ if ("Extension" -In $ComponentsToBuild) {
     Invoke-ExtensionBuild -ThirdPartyCache $Env:THIRD_PARTY_CACHE_PATH `
         -SigntoolPath $Env:SIGNTOOL_PATH `
         -CertPath $Env:CERT_PATH `
-        -CertPasswordFilePath $Env:CERT_PASSWORD_FILE_PATH `
+        -CertPasswdFilePath $Env:CERT_PASSWORD_FILE_PATH `
         -ReleaseMode $IsReleaseMode `
         -OutputPath $vRouterOutputDir `
         -LogsPath $LogsDir
@@ -91,7 +91,7 @@ if ("Agent" -In $ComponentsToBuild) {
     Invoke-AgentBuild -ThirdPartyCache $Env:THIRD_PARTY_CACHE_PATH `
         -SigntoolPath $Env:SIGNTOOL_PATH `
         -CertPath $Env:CERT_PATH `
-        -CertPasswordFilePath $Env:CERT_PASSWORD_FILE_PATH `
+        -CertPasswdFilePath $Env:CERT_PASSWORD_FILE_PATH `
         -ReleaseMode $IsReleaseMode `
         -OutputPath $AgentOutputDir `
         -LogsPath $LogsDir

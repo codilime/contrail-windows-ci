@@ -1,7 +1,7 @@
 . $PSScriptRoot\..\Common\Invoke-NativeCommand.ps1
 . $PSScriptRoot\..\Build\Repository.ps1
 
-function Clone-Repos {
+function Get-Repos {
     Param ([Parameter(Mandatory = $true, HelpMessage = "Map of repos to clone")] [System.Collections.Hashtable] $Repos)
 
     $Job.Step("Cloning repositories", {
@@ -32,7 +32,7 @@ function Clone-Repos {
     })
 }
 
-function Prepare-BuildEnvironment {
+function Initialize-BuildEnvironment {
     Param ([Parameter(Mandatory = $true)] [string] $ThirdPartyCache)
     $Job.Step("Copying common third-party dependencies", {
         if (!(Test-Path -Path .\third_party)) {
@@ -55,10 +55,10 @@ function Prepare-BuildEnvironment {
 function Set-MSISignature {
     Param ([Parameter(Mandatory = $true)] [string] $SigntoolPath,
            [Parameter(Mandatory = $true)] [string] $CertPath,
-           [Parameter(Mandatory = $true)] [string] $CertPasswordFilePath,
+           [Parameter(Mandatory = $true)] [string] $CertPasswdFilePath,
            [Parameter(Mandatory = $true)] [string] $MSIPath)
     $Job.Step("Signing MSI", {
-        $cerp = Get-Content $CertPasswordFilePath
+        $cerp = Get-Content $CertPasswdFilePath
         Invoke-NativeCommand -ScriptBlock {
             & $SigntoolPath sign /f $CertPath /p $cerp $MSIPath
         }
@@ -69,12 +69,12 @@ function Invoke-DockerDriverBuild {
     Param ([Parameter(Mandatory = $true)] [string] $DriverSrcPath,
            [Parameter(Mandatory = $true)] [string] $SigntoolPath,
            [Parameter(Mandatory = $true)] [string] $CertPath,
-           [Parameter(Mandatory = $true)] [string] $CertPasswordFilePath,
+           [Parameter(Mandatory = $true)] [string] $CertPasswdFilePath,
            [Parameter(Mandatory = $true)] [string] $OutputPath,
            [Parameter(Mandatory = $true)] [string] $LogsPath)
 
     $Job.PushStep("Docker driver build")
-    $GoPath = if (Test-Path Env:GOPATH) { (pwd) + ";$Env:GOPATH" } else { pwd }
+    $GoPath = if (Test-Path Env:GOPATH) { ( Get-Location ) + ";$Env:GOPATH" } else { Get-Location }
     $Env:GOPATH = $GoPath
     $srcPath = "$GoPath/src/$DriverSrcPath"
 
@@ -136,7 +136,7 @@ function Invoke-DockerDriverBuild {
 
     Set-MSISignature -SigntoolPath $SigntoolPath `
                      -CertPath $CertPath `
-                     -CertPasswordFilePath $CertPasswordFilePath `
+                     -CertPasswdFilePath $CertPasswdFilePath `
                      -MSIPath "docker-driver.msi"
 
     Pop-Location
@@ -152,7 +152,7 @@ function Invoke-ExtensionBuild {
     Param ([Parameter(Mandatory = $true)] [string] $ThirdPartyCache,
            [Parameter(Mandatory = $true)] [string] $SigntoolPath,
            [Parameter(Mandatory = $true)] [string] $CertPath,
-           [Parameter(Mandatory = $true)] [string] $CertPasswordFilePath,
+           [Parameter(Mandatory = $true)] [string] $CertPasswdFilePath,
            [Parameter(Mandatory = $true)] [string] $OutputPath,
            [Parameter(Mandatory = $true)] [string] $LogsPath,
            [Parameter(Mandatory = $false)] [bool] $ReleaseMode = $false)
@@ -168,7 +168,11 @@ function Invoke-ExtensionBuild {
 
     $Job.Step("Building Extension and Utils", {
         $BuildModeOption = "--optimization=" + $BuildMode
-        $Env:cerp = Get-Content $CertPasswordFilePath
+
+        [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseDeclaredVarsMoreThanAssignments",
+            Justification="Cerp env variable required by vRouter build.")]
+        $Env:cerp = Get-Content $CertPasswdFilePath
+
         Invoke-NativeCommand -ScriptBlock {
             scons $BuildModeOption vrouter | Tee-Object -FilePath $LogsDir/vrouter_build.log
         }
@@ -183,13 +187,13 @@ function Invoke-ExtensionBuild {
     Write-Host "Signing utilsMSI"
     Set-MSISignature -SigntoolPath $SigntoolPath `
                      -CertPath $CertPath `
-                     -CertPasswordFilePath $CertPasswordFilePath `
+                     -CertPasswdFilePath $CertPasswdFilePath `
                      -MSIPath $utilsMSI
 
     Write-Host "Signing vRouterMSI"
     Set-MSISignature -SigntoolPath $SigntoolPath `
                      -CertPath $CertPath `
-                     -CertPasswordFilePath $CertPasswordFilePath `
+                     -CertPasswdFilePath $CertPasswdFilePath `
                      -MSIPath $vRouterMSI
 
     $Job.Step("Copying artifacts to $OutputPath", {
@@ -206,7 +210,7 @@ function Invoke-AgentBuild {
     Param ([Parameter(Mandatory = $true)] [string] $ThirdPartyCache,
            [Parameter(Mandatory = $true)] [string] $SigntoolPath,
            [Parameter(Mandatory = $true)] [string] $CertPath,
-           [Parameter(Mandatory = $true)] [string] $CertPasswordFilePath,
+           [Parameter(Mandatory = $true)] [string] $CertPasswdFilePath,
            [Parameter(Mandatory = $true)] [string] $OutputPath,
            [Parameter(Mandatory = $true)] [string] $LogsPath,
            [Parameter(Mandatory = $false)] [bool] $ReleaseMode = $false)
@@ -238,7 +242,7 @@ function Invoke-AgentBuild {
     Write-Host "Signing agentMSI"
     Set-MSISignature -SigntoolPath $SigntoolPath `
                      -CertPath $CertPath `
-                     -CertPasswordFilePath $CertPasswordFilePath `
+                     -CertPasswdFilePath $CertPasswdFilePath `
                      -MSIPath $agentMSI
 
     $Job.Step("Copying artifacts to $OutputPath", {
@@ -265,7 +269,7 @@ function Test-IfGTestOutputSuggestsThatAllTestsHavePassed {
     return $False
 }
 
-function Run-Test {
+function Invoke-AgentUnitTestRunner {
     Param ([Parameter(Mandatory = $true)] [String] $TestExecutable)
     Write-Host "===> Agent tests: running $TestExecutable..."
     $Res = Invoke-Command -ScriptBlock {
@@ -359,9 +363,14 @@ function Invoke-AgentTestsBuild {
         $backupPath = $Env:Path
         $Env:Path += ";" + $(Get-Location).Path + "\build\bin"
 
-        # Those env vars are used by agent tests for determining timeout's threshold
-        # They were copied from Linux unit test job
+        [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseDeclaredVarsMoreThanAssignments",
+            Justification="TASK_UTIL_WAIT_TIME is used agent tests for determining timeout's " +
+            "threshold. They were copied from Linux unit test job.")]
         $Env:TASK_UTIL_WAIT_TIME = 10000
+
+        [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseDeclaredVarsMoreThanAssignments",
+            Justification="TASK_UTIL_RETRY_COUNT is used agent tests for determining timeout's " +
+            "threshold. They were copied from Linux unit test job.")]
         $Env:TASK_UTIL_RETRY_COUNT = 6000
 
         $TestsFolders = @(
@@ -374,11 +383,11 @@ function Invoke-AgentTestsBuild {
             "vnsw\agent\test",
             "xml\test",
             "xmpp\test"
-        ) | % { "$rootBuildDir\$_" }
+        ) | ForEach-Object { "$rootBuildDir\$_" }
 
         $AgentExecutables = Get-ChildItem -Recurse $TestsFolders | Where-Object {$_.Name -match '.*\.exe$'}
         Foreach ($TestExecutable in $AgentExecutables) {
-            $TestRes = Run-Test -TestExecutable $TestExecutable.FullName
+            $TestRes = Invoke-AgentUnitTestRunner -TestExecutable $TestExecutable.FullName
             if ($TestRes -ne 0) {
                 throw "Running agent tests failed"
             }
