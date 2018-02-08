@@ -53,7 +53,9 @@ if($IsTriggeredByZuul) {
     Get-Repos -Repos $Repos
 }
 
-$Output = Invoke-ScriptAnalyzer "$PSScriptRoot/.." -Recurse -Setting $PathToLinterSettings -WarningVariable WarnVar
+$PathToLinterSettings = $PSScriptRoot."/../linters/PSScriptAnalyzerSettings.ps1"
+$ProjectsRoot = $PSScriptRoot."/.."
+$Output = Invoke-ScriptAnalyzer $ProjectsRoot -Recurse -Setting $PathToLinterSettings -WarningVariable WarnVar
 if ($WarnVar) {
     throw "Linter failed: $WarnVar"
 }
