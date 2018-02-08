@@ -53,7 +53,14 @@ if($IsTriggeredByZuul) {
     Get-Repos -Repos $Repos
 }
 
-Invoke-Linters
+$Output = Invoke-ScriptAnalyzer "$PSScriptRoot/.." -Recurse -Setting $PathToLinterSettings -WarningVariable WarnVar
+if ($WarnVar) {
+    throw "Linter failed: $WarnVar"
+}
+if ($Output) {
+    Write-Host $Output
+    exit 1
+}
 
 $IsReleaseMode = [bool]::Parse($Env:BUILD_IN_RELEASE_MODE)
 Initialize-BuildEnvironment -ThirdPartyCache $Env:THIRD_PARTY_CACHE_PATH
