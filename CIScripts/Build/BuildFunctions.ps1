@@ -1,4 +1,5 @@
 . $PSScriptRoot\..\Common\Invoke-NativeCommand.ps1
+. $PSScriptRoot\..\Common\Invoke-UntilSucceeds.ps1
 . $PSScriptRoot\..\Build\Repository.ps1
 
 function Clone-Repos {
@@ -220,11 +221,13 @@ function Invoke-AgentBuild {
     $BuildMode = $(if ($ReleaseMode) { "production" } else { "debug" })
     $BuildModeOption = "--optimization=" + $BuildMode
 
-    $Job.Step("Building API", {
-        Invoke-NativeCommand -ScriptBlock {
-            scons $BuildModeOption controller/src/vnsw/contrail_vrouter_api:sdist | Tee-Object -FilePath $LogsPath/build_api.log
-        }
-    })
+    Invoke-UntilSucceeds {
+        $Job.Step("Building API", {
+            Invoke-NativeCommand -ScriptBlock {
+                scons $BuildModeOption controller/src/vnsw/contrail_vrouter_api:sdist | Tee-Object -FilePath $LogsPath/build_api.log
+            }
+        })
+    } -Duration 60*60*2 # 2 hours
 
     $Job.Step("Building contrail-vrouter-agent.exe and .msi", {
         $AgentBuildCommand = "scons -j 4 {0} contrail-vrouter-agent.msi" -f "$BuildModeOption"
