@@ -1,37 +1,6 @@
 . $PSScriptRoot\..\Common\Invoke-NativeCommand.ps1
 . $PSScriptRoot\..\Build\Repository.ps1
 
-function Get-Repos {
-    Param ([Parameter(Mandatory = $true, HelpMessage = "Map of repos to clone")] [System.Collections.Hashtable] $Repos)
-
-    $Job.Step("Cloning repositories", {
-        $CustomBranches = @($Repos.Where({ $_.Branch -ne $_.DefaultBranch }) |
-                            Select-Object -ExpandProperty Branch -Unique)
-        $Repos.Values.ForEach({
-            # If there is only one unique custom branch provided, at first try to use it for all repos.
-            # Otherwise, use branch specific for this repo.
-            $CustomMultiBranch = $(if ($CustomBranches.Count -eq 1) { $CustomBranches[0] } else { $_.Branch })
-
-            Write-Host $("Cloning " +  $_.Url + " from branch: " + $CustomMultiBranch)
-
-            # We must use -q (quiet) flag here, since git clone prints to stderr and tries to do some real-time
-            # command line magic (like updating cloning progress). Powershell command in Jenkinsfile
-            # can't handle it and throws a Write-ErrorException.
-            $NativeCommandReturn = Invoke-NativeCommand -AllowNonZero $true -ScriptBlock {
-                git clone -q -b $CustomMultiBranch $_.Url $_.Dir
-            }
-            $ExitCode = $NativeCommandReturn[-1]
-            if ($ExitCode -ne 0) {
-                Write-Host $("Cloning " +  $_.Url + " from branch: " + $_.Branch)
-
-                Invoke-NativeCommand -ScriptBlock {
-                    git clone -q -b $_.Branch $_.Url $_.Dir
-                }
-            }
-        })
-    })
-}
-
 function Initialize-BuildEnvironment {
     Param ([Parameter(Mandatory = $true)] [string] $ThirdPartyCache)
     $Job.Step("Copying common third-party dependencies", {

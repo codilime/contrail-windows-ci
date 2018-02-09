@@ -41,17 +41,28 @@ pipeline {
             }
         }
 
+        stage ('Checkout') {
+            agent { label 'windows' }
+            steps {
+                deleteDir()
+                unstash "CIScripts"
+                powershell script: './CIScripts/Checkout.ps1'
+                stash name: "SourceCode", excludes: "CIScripts"
+            }
+        }
+
         stage('Lint') {
             agent { label 'scriptanalyzer' }
             steps {
                 deleteDir()
                 unstash "Linters"
+                unstash "SourceCode"
                 powershell script: "./Linters/Invoke-AllLinters.ps1 -RootDir . -Config ${env.WORKSPACE}/Linters/"
             }
         }
 
         stage('Build') {
-            agent { label 'builder && scriptanalyzer' }
+            agent { label 'builder' }
             environment {
                 THIRD_PARTY_CACHE_PATH = "C:/BUILD_DEPENDENCIES/third_party_cache/"
                 DRIVER_SRC_PATH = "github.com/Juniper/contrail-windows-docker-driver"
@@ -68,11 +79,11 @@ pipeline {
                 deleteDir()
 
                 unstash "CIScripts"
+                unstash "SourceCode"
 
                 powershell script: './CIScripts/BuildStage.ps1'
 
                 stash name: "WinArt", includes: "output/**/*"
-                //stash name: "buildLogs", includes: "logs/**"
             }
         }
 
