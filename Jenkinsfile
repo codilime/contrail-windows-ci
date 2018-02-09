@@ -32,12 +32,9 @@ pipeline {
                     dataNetwork = calculateTestNetwork(env.BUILD_ID as int)
                 }
 
-                // If not using `Pipeline script from SCM`, specify the branch manually:
-                // git branch: 'development', url: 'https://github.com/codilime/contrail-windows-ci/'
-
                 stash name: "CIScripts", includes: "CIScripts/**"
                 stash name: "Linters", includes: "Linters/**"
-                stash name: "ansible", includes: "ansible/**"
+                stash name: "Ansible", includes: "ansible/**"
             }
         }
 
@@ -87,13 +84,9 @@ pipeline {
 
                 powershell script: './CIScripts/BuildStage.ps1'
 
-                stash name: "WinArt", includes: "output/**/*"
+                stash name: "Artifacts", includes: "output/**/*"
             }
         }
-
-        // Variables are not supported in declarative pipeline.
-        // Possible workaround: store SpawnedTestbedVMNames in stashed file.
-        // def SpawnedTestbedVMNames = ''
 
         // NOTE: Currently nesting multiple stages in lock directive is unsupported
         stage('Provision & Deploy & Test') {
@@ -116,7 +109,7 @@ pipeline {
                             // 'Provision' stage
                             node(label: 'ansible') {
                                 deleteDir()
-                                unstash 'ansible'
+                                unstash 'Ansible'
 
                                 script {
                                     vmwareConfig = getVMwareConfig()
@@ -140,7 +133,7 @@ pipeline {
                                 deleteDir()
 
                                 unstash "CIScripts"
-                                unstash "WinArt"
+                                unstash "Artifacts"
 
                                 script {
                                     env.TESTBED_ADDRESSES = testbeds.join(',')
