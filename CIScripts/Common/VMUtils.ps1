@@ -22,12 +22,12 @@ function New-RemoteSessions {
 
             # Refresh PATH
             [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseDeclaredVarsMoreThanAssignments",
-                Justification="We refresh PATH on remote machine, we don't use it here.")]
+                "", Justification="We refresh PATH on remote machine, we don't use it here.")]
             $Env:Path = [System.Environment]::GetEnvironmentVariable("Path", "Machine")
         }
 
         [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseDeclaredVarsMoreThanAssignments",
-            Justification="PSA #804")]
+            "", Justification="PSA #804")]
         $Sessions += $Sess
     })
     return $Sessions

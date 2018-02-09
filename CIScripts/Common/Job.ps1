@@ -5,24 +5,24 @@
 # Class usage example:
 #
 # ```
-# $t = [Job]::new("asdf")
-# $t.PushStep("t")
-#     $t.PushStep("t0")
-#     $t.PopStep()
-#     $t.PushStep("t1")
-#         $t.PushStep("t11")
-#         $t.PopStep()
-#         $t.PushStep("t12")
-#         $t.PopStep()
-#     $t.PopStep()
-#     $t.PushStep("t2")
-#     $t.PopStep()
-#     $t.StepQuiet("ttt1", { echo "test123" })
-#     $t.Step("ttt2", { echo "test456" })
-# $t.PopStep()
-# $t.PushStep("tx")
-#     $t.PushStep("Should be closed automatically")
-# $t.Done()
+$t = [Job]::new("asdf")
+$t.PushStep("t")
+    $t.PushStep("t0")
+    $t.PopStep()
+    $t.PushStep("t1")
+        $t.PushStep("t11")
+        $t.PopStep()
+        $t.PushStep("t12")
+        $t.PopStep()
+    $t.PopStep()
+    $t.PushStep("t2")
+    $t.PopStep()
+    $t.StepQuiet("ttt1", { echo "test123" })
+    $t.Step("ttt2", { echo "test456" })
+$t.PopStep()
+$t.PushStep("tx")
+    $t.PushStep("Should be closed automatically")
+$t.Done()
 # ```
 #
 # console output:
@@ -59,7 +59,10 @@
 # =======================================================
 # ```
 
+   
 class JobStep {
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseDeclaredVarsMoreThanAssignments", "",
+        Scope="class", Justification="Issue #804")]
     [string] $Name
     [DateTime] $Start
     [DateTime] $End
@@ -77,8 +80,6 @@ class JobStep {
     Print([int] $IndentLevel) {
         $msg = ""
         1..($IndentLevel) | ForEach-Object {
-            [Diagnostics.CodeAnalysis.SuppressMessageAttribute(
-                "PSUseDeclaredVarsMoreThanAssignments", Justification="Issue #804")]
             $msg += " "
         }
         $msg += "- [" + ($this.GetResult()) + "]: " + $this.Name

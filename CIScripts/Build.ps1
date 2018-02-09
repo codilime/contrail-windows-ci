@@ -8,6 +8,7 @@
 
 $Job = [Job]::new("Build")
 
+Write-Host "asdf"
 $IsReleaseMode = [bool]::Parse($Env:BUILD_IN_RELEASE_MODE)
 Initialize-BuildEnvironment -ThirdPartyCache $Env:THIRD_PARTY_CACHE_PATH
 
@@ -22,6 +23,7 @@ New-Item -ItemType directory -Path $AgentOutputDir | Out-Null
 New-Item -ItemType directory -Path $LogsDir | Out-Null
 
 $ComponentsToBuild = Get-ComponentsToBuild
+
 
 if ("DockerDriver" -In $ComponentsToBuild) {
     Invoke-DockerDriverBuild -DriverSrcPath $Env:DRIVER_SRC_PATH `

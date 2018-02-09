@@ -139,7 +139,7 @@ function Invoke-ExtensionBuild {
         $BuildModeOption = "--optimization=" + $BuildMode
 
         [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseDeclaredVarsMoreThanAssignments",
-            Justification="Cerp env variable required by vRouter build.")]
+            "", Justification="Cerp env variable required by vRouter build.")]
         $Env:cerp = Get-Content $CertPasswdFilePath
 
         Invoke-NativeCommand -ScriptBlock {
@@ -338,13 +338,13 @@ function Invoke-AgentTestsBuild {
         $Env:Path += ";" + $(Get-Location).Path + "\build\bin"
 
         [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseDeclaredVarsMoreThanAssignments",
-            Justification="TASK_UTIL_WAIT_TIME is used agent tests for determining timeout's " +
+            "", Justification="TASK_UTIL_WAIT_TIME is used agent tests for determining timeout's " +
             "threshold. They were copied from Linux unit test job.")]
         $Env:TASK_UTIL_WAIT_TIME = 10000
 
         [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseDeclaredVarsMoreThanAssignments",
-            Justification="TASK_UTIL_RETRY_COUNT is used agent tests for determining timeout's " +
-            "threshold. They were copied from Linux unit test job.")]
+            "", Justification="TASK_UTIL_RETRY_COUNT is used agent tests for determining " +
+            "timeout's threshold. They were copied from Linux unit test job.")]
         $Env:TASK_UTIL_RETRY_COUNT = 6000
 
         $TestsFolders = @(

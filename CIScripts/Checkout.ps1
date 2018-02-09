@@ -1,4 +1,7 @@
+. $PSScriptRoot\Common\Job.ps1
 . $PSScriptRoot\Checkout\Zuul.ps1
+
+$Job = [Job]::new("Checkout")
 
 # TODO This is a temporary condition to enable smooth phase in of
 # Juniper/contrail-windows repository. Once the code is actually
@@ -21,3 +24,5 @@ Get-ZuulRepos -GerritUrl $Env:GERRIT_URL `
 Get-NonZuulRepos -DriverSrcPath $Env:DRIVER_SRC_PATH `
                  -WindowsStubsRepositoryPath $WindowsStubsRepositoryPath `
                  -WindowsStubsBranch $WindowsStubsBranch
+
+$Job.Done()
