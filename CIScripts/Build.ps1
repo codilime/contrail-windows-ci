@@ -6,6 +6,7 @@
 . $PSScriptRoot\Build\BuildFunctions.ps1
 . $PSScriptRoot\Build\StagingCI.ps1
 . $PSScriptRoot\Build\Zuul.ps1
+. $PSScriptRoot\..\Linters\Invoke-AllLinters.ps1
 
 $Job = [Job]::new("Build")
 
@@ -53,16 +54,10 @@ if($IsTriggeredByZuul) {
     Get-Repos -Repos $Repos
 }
 
-$PathToLinterSettings = $PSScriptRoot."/../linters/PSScriptAnalyzerSettings.ps1"
-$ProjectsRoot = $PSScriptRoot."/.."
-$Output = Invoke-ScriptAnalyzer $ProjectsRoot -Recurse -Setting $PathToLinterSettings -WarningVariable WarnVar
-if ($WarnVar) {
-    throw "Linter failed: $WarnVar"
-}
-if ($Output) {
-    Write-Host $Output
-    exit 1
-}
+$ProjectsRoot = "$PSScriptRoot/.."
+$LintConfigDir = "$PSScriptRoot/../Linters/"
+Write-Host $ProjectsRoot
+Invoke-AllLinters -RootDir $ProjectsRoot -ConfigDir $LintConfigDir
 
 $IsReleaseMode = [bool]::Parse($Env:BUILD_IN_RELEASE_MODE)
 Initialize-BuildEnvironment -ThirdPartyCache $Env:THIRD_PARTY_CACHE_PATH
