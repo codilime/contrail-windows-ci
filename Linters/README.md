@@ -1,6 +1,4 @@
-# contrail-windows-ci
-
-# Linters
+# Run all available linters
 
 To run all available linters, execute the following command in this directory:
 
