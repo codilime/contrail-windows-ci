@@ -8,7 +8,6 @@
 
 $Job = [Job]::new("Build")
 
-Write-Host "asdf"
 $IsReleaseMode = [bool]::Parse($Env:BUILD_IN_RELEASE_MODE)
 Initialize-BuildEnvironment -ThirdPartyCache $Env:THIRD_PARTY_CACHE_PATH
 
