@@ -21,11 +21,6 @@ function Invoke-TestScenarios {
     )
 
     $Job.Step("Running all integration tests", {
-
-        . "$TestConfigurationFile"
-
-        $TestConfiguration = Get-TestConfiguration
-
         # $SNATConfiguration = Get-SnatConfiguration
 
         # Test-AgentService -Session $Sessions[0] -TestConfiguration $TestConfiguration
