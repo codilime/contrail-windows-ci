@@ -6,7 +6,6 @@
 . $PSScriptRoot\Build\BuildFunctions.ps1
 . $PSScriptRoot\Build\StagingCI.ps1
 . $PSScriptRoot\Build\Zuul.ps1
-. $PSScriptRoot\..\Linters\Invoke-AllLinters.ps1
 
 $Job = [Job]::new("Build")
 
