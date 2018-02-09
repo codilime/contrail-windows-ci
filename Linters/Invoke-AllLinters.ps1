@@ -1,8 +1,14 @@
 Param([Parameter(Mandatory = $true)] [string] $RootDir,
       [Parameter(Mandatory = $true)] [string] $ConfigDir)
 
-. $PSScriptRoot\..\CIScripts\Common\Job.ps1
 . $PSScriptRoot\Invoke-PowershellLinter.ps1
 
-$SettingsPath = "$ConfigDir/PSScriptAnalyzerSettings.psd1"
-Invoke-PowershellLinter -RootDir $RootDir -Config $SettingsPath
+$PSLinterConfig = "$ConfigDir/PSScriptAnalyzerSettings.psd1"
+$Output = Invoke-ScriptAnalyzer $RootDir -Recurse -Setting $PSLinterConfig `
+      -ErrorAction Continue -WarningAction Continue
+if ($Output) {
+      Write-Host ($Output | Format-Table | Out-String)
+      exit 1
+}
+
+exit 0
