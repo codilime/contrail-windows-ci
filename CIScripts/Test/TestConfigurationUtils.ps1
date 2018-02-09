@@ -72,7 +72,14 @@ function Enable-VRouterExtension {
 
     Invoke-Command -Session $Session -ScriptBlock {
         New-ContainerNetwork -Mode Transparent -NetworkAdapterName $Using:AdapterName -Name $Using:ContainerNetworkName | Out-Null
-        Enable-VMSwitchExtension -VMSwitchName $Using:VMSwitchName -Name $Using:ForwardingExtensionName | Out-Null
+        $Extension = Get-VMSwitch | Get-VMSwitchExtension -Name $Using:ForwardingExtensionName | Where-Object Enabled
+        if ($Extension) {
+            Write-Warning "Extension already enabled on: $($Extension.SwitchName)"
+        }
+        $Extension = Enable-VMSwitchExtension -VMSwitchName $Using:VMSwitchName -Name $Using:ForwardingExtensionName
+        if ((-not $Extension.Enabled) -or (-not ($Extension.Running))) {
+            throw "Failed to enable extension (not enabled or not running)"
+        }
     }
 }
 
