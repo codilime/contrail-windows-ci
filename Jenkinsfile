@@ -35,7 +35,17 @@ pipeline {
                 // git branch: 'development', url: 'https://github.com/codilime/contrail-windows-ci/'
 
                 stash name: "CIScripts", includes: "CIScripts/**"
+                stash name: "Linters", includes: "Linters/**"
                 stash name: "ansible", includes: "ansible/**"
+            }
+        }
+
+        stage('Lint') {
+            agent { label 'scriptanalyzer' }
+            steps {
+                deleteDir()
+                unstash "Linters"
+                powershell script: "./Linters/Invoke-AllLinters.ps1 -RootDir . -Config ${env.WORKSPACE}/Linters/"
             }
         }
 
@@ -56,8 +66,6 @@ pipeline {
                 deleteDir()
 
                 unstash "CIScripts"
-
-                powershell script: "./Linters/Invoke-AllLinters.ps1 -RootDir . -Config ${env.WORKSPACE}/Linters/"
                 powershell script: './CIScripts/Build.ps1'
 
                 stash name: "WinArt", includes: "output/**/*"
