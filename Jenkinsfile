@@ -43,6 +43,9 @@ pipeline {
 
         stage ('Checkout') {
             agent { label 'windows' }
+            environment {
+                DRIVER_SRC_PATH = "github.com/Juniper/contrail-windows-docker-driver"
+            }
             steps {
                 deleteDir()
                 unstash "CIScripts"
@@ -52,6 +55,7 @@ pipeline {
         }
 
         stage('Lint') {
+            // TODO: 'scriptanalyzer' is feature flag label; change to 'builder' after rollout done
             agent { label 'scriptanalyzer' }
             steps {
                 deleteDir()
