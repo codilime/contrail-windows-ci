@@ -5,7 +5,7 @@
 To run all available linters, execute the following command in this directory:
 
 ```
-Invoke-AllLinters -RootDir .. -ConfigDir $pwd
+.\Invoke-AllLinters.ps1 -RootDir .. -ConfigDir $pwd
 ```
 
 ## Powershell Script Analyzer (PSSCriptAnalyzer)
@@ -13,5 +13,5 @@ Invoke-AllLinters -RootDir .. -ConfigDir $pwd
 To run using our settings:
 
 ```
-Invoke-ScriptAnalyzer . -Recurse -Settings C:\Full\Path\To\contrail-windows-ci\linters\PSScriptAnalyzerSettings.psd1
+Invoke-ScriptAnalyzer .. -Recurse -Settings C:\Full\Path\To\contrail-windows-ci\linters\PSScriptAnalyzerSettings.psd1
 ```
