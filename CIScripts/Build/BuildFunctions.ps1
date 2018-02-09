@@ -221,13 +221,14 @@ function Invoke-AgentBuild {
     $BuildMode = $(if ($ReleaseMode) { "production" } else { "debug" })
     $BuildModeOption = "--optimization=" + $BuildMode
 
+    $Timeout = 60*60*2 # 2 hours
     Invoke-UntilSucceeds {
         $Job.Step("Building API", {
             Invoke-NativeCommand -ScriptBlock {
                 scons $BuildModeOption controller/src/vnsw/contrail_vrouter_api:sdist | Tee-Object -FilePath $LogsPath/build_api.log
             }
         })
-    } -Duration 60*60*2 # 2 hours
+    } -Duration $Timeout
 
     $Job.Step("Building contrail-vrouter-agent.exe and .msi", {
         $AgentBuildCommand = "scons -j 4 {0} contrail-vrouter-agent.msi" -f "$BuildModeOption"
