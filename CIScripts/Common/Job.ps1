@@ -61,8 +61,6 @@
 
    
 class JobStep {
-    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseDeclaredVarsMoreThanAssignments", "",
-        Scope="class", Justification="Issue #804")]
     [string] $Name
     [DateTime] $Start
     [DateTime] $End
@@ -80,6 +78,8 @@ class JobStep {
     Print([int] $IndentLevel) {
         $msg = ""
         1..($IndentLevel) | ForEach-Object {
+            [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseDeclaredVarsMoreThanAssignments",
+                "", Justification="Issue #804")]
             $msg += " "
         }
         $msg += "- [" + ($this.GetResult()) + "]: " + $this.Name
