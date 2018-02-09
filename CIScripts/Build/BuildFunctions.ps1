@@ -36,7 +36,7 @@ function Initialize-BuildEnvironment {
     Param ([Parameter(Mandatory = $true)] [string] $ThirdPartyCache)
     $Job.Step("Copying common third-party dependencies", {
         if (!(Test-Path -Path .\third_party)) {
-            New-Item -ItemType Directory .\third_party
+            New-Item -ItemType Directory .\third_party | Out-Null
         }
         Get-ChildItem "$ThirdPartyCache\common" -Directory |
             Where-Object{$_.Name -notlike "boost*"} |
@@ -44,7 +44,7 @@ function Initialize-BuildEnvironment {
     })
 
     $Job.Step("Symlinking boost", {
-        New-Item -Path "third_party\boost_1_62_0" -ItemType SymbolicLink -Value "$ThirdPartyCache\boost_1_62_0"
+        New-Item -Path "third_party\boost_1_62_0" -ItemType SymbolicLink -Value "$ThirdPartyCache\boost_1_62_0" | Out-Null
     })
 
     $Job.Step("Copying SConstruct from tools\build", {
@@ -78,7 +78,7 @@ function Invoke-DockerDriverBuild {
     $Env:GOPATH = $GoPath
     $srcPath = "$GoPath/src/$DriverSrcPath"
 
-    New-Item -ItemType Directory ./bin
+    New-Item -ItemType Directory ./bin | Out-Null
 
     Push-Location $srcPath
     $Job.Step("Fetch third party packages ", {
@@ -231,7 +231,12 @@ function Invoke-AgentBuild {
     })
 
     $Job.Step("Building contrail-vrouter-agent.exe and .msi", {
-        $AgentBuildCommand = "scons -j 4 {0} contrail-vrouter-agent.msi" -f "$BuildModeOption"
+        if(Test-Path Env:AGENT_BUILD_THREADS) {
+            $Threads = $Env:AGENT_BUILD_THREADS
+        } else {
+            $Threads = 1
+        }
+        $AgentBuildCommand = "scons -j {0} {1} contrail-vrouter-agent.msi" -f $Threads, $BuildModeOption
         Invoke-NativeCommand -ScriptBlock {
             Invoke-Expression $AgentBuildCommand | Tee-Object -FilePath $LogsPath/build_agent.log
         }

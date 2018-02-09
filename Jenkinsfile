@@ -15,6 +15,7 @@ pipeline {
 
     options {
         timeout time: 5, unit: 'HOURS'
+        timestamps()
     }
 
     stages {
@@ -61,12 +62,14 @@ pipeline {
                 CERT_PASSWORD_FILE_PATH = "C:/BUILD_DEPENDENCIES/third_party_cache/common/certs/certp.txt"
 
                 MSBUILD = "C:/Program Files (x86)/MSBuild/14.0/Bin/MSBuild.exe"
+                WINCIDEV = credentials('winci-drive')
             }
             steps {
                 deleteDir()
 
                 unstash "CIScripts"
-                powershell script: './CIScripts/Build.ps1'
+
+                powershell script: './CIScripts/BuildStage.ps1'
 
                 stash name: "WinArt", includes: "output/**/*"
                 //stash name: "buildLogs", includes: "logs/**"
@@ -160,8 +163,8 @@ pipeline {
         LOG_SERVER_USER = "zuul-win"
         LOG_ROOT_DIR = "/var/www/logs/winci"
         BUILD_SPECIFIC_DIR = "${ZUUL_UUID}"
-        JOB_SUBDIR = env.JOB_NAME.replaceAll("/", "/jobs/")
-        LOCAL_SRC_FILE = "${JENKINS_HOME}/jobs/${JOB_SUBDIR}/builds/${BUILD_ID}/log"
+        JOB_SUBPATH = env.JOB_NAME.replaceAll("/", "/job/")
+        RAW_LOG_PATH = "job/${JOB_SUBPATH}/${BUILD_ID}/timestamps/?elapsed=HH:mm:ss&appendLog"
         REMOTE_DST_FILE = "${LOG_ROOT_DIR}/${BUILD_SPECIFIC_DIR}/log.txt"
     }
 
@@ -176,13 +179,14 @@ pipeline {
                     // repository contrail-windows is accessible from Gerrit and it is main source of
                     // windowsstubs code.
                     if (env.ghprbPullId == null && env.JUNIPER_WINDOWSSTUBS == null) {
-                        // cleanWs()
-                        echo "TODO environment cleanup"
                         // unstash "buildLogs"
                         // TODO correct flags for rsync
                         sh "ssh ${LOG_SERVER_USER}@${LOG_SERVER} \"mkdir -p ${LOG_ROOT_DIR}/${BUILD_SPECIFIC_DIR}\""
-                        sh "rsync ${LOCAL_SRC_FILE} ${LOG_SERVER_USER}@${LOG_SERVER}:${REMOTE_DST_FILE}"
-                        // cleanWS{}
+                        // The timestamps are not stored on disk as raw text, but in some encoded form,
+                        // so the easiest way to decode them is to use http path provided by the timestamper plugin.
+                        sh "curl --silent 'http://localhost:8080/$RAW_LOG_PATH' --output clean_log.txt"
+                        sh "rsync clean_log.txt ${LOG_SERVER_USER}@${LOG_SERVER}:${REMOTE_DST_FILE}"
+                        deleteDir()
                     }
                 }
             }

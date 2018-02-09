@@ -1,4 +1,4 @@
-# Build builds all Windows Compute components.
+# Build builds selected Windows Compute components.
 
 . $PSScriptRoot\Common\Init.ps1
 . $PSScriptRoot\Common\Job.ps1
@@ -62,10 +62,10 @@ $vRouterOutputDir = "output/vrouter"
 $AgentOutputDir = "output/agent"
 $LogsDir = "logs"
 
-New-Item -ItemType directory -Path $DockerDriverOutputDir
-New-Item -ItemType directory -Path $vRouterOutputDir
-New-Item -ItemType directory -Path $AgentOutputDir
-New-Item -ItemType directory -Path $LogsDir
+New-Item -ItemType directory -Path $DockerDriverOutputDir | Out-Null
+New-Item -ItemType directory -Path $vRouterOutputDir | Out-Null
+New-Item -ItemType directory -Path $AgentOutputDir | Out-Null
+New-Item -ItemType directory -Path $LogsDir | Out-Null
 
 $ComponentsToBuild = Get-ComponentsToBuild
 
