@@ -111,8 +111,6 @@ pipeline {
                 TEST_CONFIGURATION_FILE = "GetTestConfigurationJuni.ps1"
                 TESTBED = credentials('win-testbed')
                 ARTIFACTS_DIR = "output"
-                TESTBED_TEMPLATE = "Template-testbed-201802130923"
-                CONTROLLER_TEMPLATE = "template-contrail-controller-3.1.1.0-45"
             }
 
             steps {
@@ -150,6 +148,12 @@ pipeline {
 
                             provisionTestEnv(vmwareConfig)
                             testbeds = parseTestbedAddresses(inventoryFilePath)
+                            controllerIP = parseControllerAddress(inventoryFilePath)
+                            echo "T: ${testbeds} C: ${controllerIP}"
+                            sh 'mkdir ansible/project-config'
+                            
+                            provisionContrailController(vmwareConfig, controllerIP)
+                            unstash "ansible"
                         }
 
                         // 'Deploy' stage

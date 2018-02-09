@@ -1,0 +1,33 @@
+#create vm from template
+
+# - name: Checkout CI job repos
+#   git:
+#     repo: "https://github.com/{{ item.user }}/{{ item.reponame }}"
+#     dest: "{{ workdir }}/contrail-dev-env/code/{{ item.reponame }}"
+#     version: master
+#     force: yes
+#   with_items:
+#     - { user: 'Juniper', reponame: 'contrail-project-config' } #codilime github?
+#     - { user: 'Juniper', reponame: 'contrail-ansible-deployer' }
+
+#   - name: Install build dependencies
+#     package:
+#       name: "{{ item }}"
+#       state: latest
+#     become: true
+#     with_items:
+#       - centos-release-openstack-ocata
+#       - python2-requests
+#       - git
+ 
+#   roles:
+#     - role: contrail-ansible-deployer
+#       cloud_orchestrator: openstack
+#       openstack_version: ocata
+#       contrail_version: '5.0.0-134'
+#     - role: kolla-provision-dockers
+#       kolla_provision_dir: '/tmp/contrail-kolla-ansible'
+#       kolla_config_dir: "{{ kolla_provision_dir }}/etc/kolla"
+#       kolla_docker_distro: "ubuntu"
+#       openstack_version: "ocata"
+#       kolla_version: "contrail_4_1_8"
