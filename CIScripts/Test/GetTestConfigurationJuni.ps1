@@ -5,7 +5,7 @@ function Get-TestConfiguration {
         ControllerHostUsername = "ubuntu";
         ControllerHostPassword = "ubuntu";
         AdapterName = "Ethernet1";
-        VMSwitchName = "Layered Ethernet1";
+        VMSwitchName = "Layered*";
         VHostName = "vEthernet (HNSTransparent)"
         ForwardingExtensionName = "vRouter forwarding extension";
         AgentConfigFilePath = "C:\ProgramData\Contrail\etc\contrail\contrail-vrouter-agent.conf";
