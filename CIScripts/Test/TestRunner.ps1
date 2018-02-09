@@ -19,7 +19,7 @@ function Invoke-TestScenarios {
         [Parameter(Mandatory = $true)] [PSSessionT[]] $Sessions,
         [Parameter(Mandatory = $true)] [String] $TestConfigurationFile
     )
-    $a = 3
+
     $Job.Step("Running all integration tests", {
         # $SNATConfiguration = Get-SnatConfiguration
 
