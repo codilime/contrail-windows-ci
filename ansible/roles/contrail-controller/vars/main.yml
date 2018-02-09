@@ -1,0 +1,19 @@
+zuul:
+  # branch: master
+  # change: 10000
+  # patchset: 1
+  # projects:
+  # - short_name: contrail-packages
+  #   src_dir: src/review.opencontrail.org/Juniper/contrail-packages
+  executor:
+    work_root: /tmp
+docker_registry:
+  fqdn: 10.84.22.43
+  port: '5000'
+# site_pulp:
+#   fqdn: 148.251.5.90
+#   registry_port: 5000
+# contrail_repo: "http://172.17.0.1:6667"
+docker_provision_dir: '{{ ansible_env.HOME }}/src/review.opencontrail.org/Juniper/contrail-ansible-deployer'
+contrail_version: '5.0.0-134'
+openstack_version: 'ocata'
