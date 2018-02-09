@@ -57,6 +57,7 @@ pipeline {
 
                 unstash "CIScripts"
 
+                powershell script: "./Linters/Invoke-AllLinters.ps1 -RootDir . -Config ${env.WORKSPACE}/Linters/"
                 powershell script: './CIScripts/Build.ps1'
 
                 stash name: "WinArt", includes: "output/**/*"

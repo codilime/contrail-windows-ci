@@ -54,11 +54,6 @@ if($IsTriggeredByZuul) {
     Get-Repos -Repos $Repos
 }
 
-$ProjectsRoot = "$PSScriptRoot/.."
-$LintConfigDir = "$PSScriptRoot/../Linters/"
-Write-Host $ProjectsRoot
-Invoke-AllLinters -RootDir $ProjectsRoot -ConfigDir $LintConfigDir
-
 $IsReleaseMode = [bool]::Parse($Env:BUILD_IN_RELEASE_MODE)
 Initialize-BuildEnvironment -ThirdPartyCache $Env:THIRD_PARTY_CACHE_PATH
 

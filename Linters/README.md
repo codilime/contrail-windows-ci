@@ -2,6 +2,12 @@
 
 # Linters
 
+To run all available linters, execute the following command in this directory:
+
+```
+Invoke-AllLinters -RootDir .. -ConfigDir $pwd
+```
+
 ## Powershell Script Analyzer (PSSCriptAnalyzer)
 
 To run using our settings:
