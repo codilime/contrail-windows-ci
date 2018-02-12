@@ -5,7 +5,11 @@ function Get-TestConfiguration {
         ControllerHostUsername = "ubuntu";
         ControllerHostPassword = "ubuntu";
         AdapterName = "Ethernet1";
-        VMSwitchName = "Layered Ethernet1";
+
+        # When creating network using `docker network create`
+        # the switch gets a `Layered_<Adapter>` name, but docker driver
+        # uses space instead of `_`. We support both names here.
+        VMSwitchName = "Layered?Ethernet1";
         VHostName = "vEthernet (HNSTransparent)"
         ForwardingExtensionName = "vRouter forwarding extension";
         AgentConfigFilePath = "C:\ProgramData\Contrail\etc\contrail\contrail-vrouter-agent.conf";

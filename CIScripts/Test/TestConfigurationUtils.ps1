@@ -71,7 +71,9 @@ function Enable-VRouterExtension {
     Write-Host "Enabling Extension"
 
     Invoke-Command -Session $Session -ScriptBlock {
-        New-ContainerNetwork -Mode Transparent -NetworkAdapterName $Using:AdapterName -Name $Using:ContainerNetworkName | Out-Null
+        docker network create -d transparent --ipam-driver windows `
+            -o com.docker.network.windowsshim.interface=$Using:AdapterName $Using:ContainerNetworkName
+
         $Extension = Get-VMSwitch | Get-VMSwitchExtension -Name $Using:ForwardingExtensionName | Where-Object Enabled
         if ($Extension) {
             Write-Warning "Extension already enabled on: $($Extension.SwitchName)"
@@ -165,7 +167,6 @@ function Disable-DockerDriver {
     Invoke-Command -Session $Session -ScriptBlock {
         Stop-Service docker | Out-Null
         Get-NetNat | Remove-NetNat -Confirm:$false
-        Get-ContainerNetwork | Remove-ContainerNetwork -ErrorAction SilentlyContinue -Force
         Get-ContainerNetwork | Remove-ContainerNetwork -Force
         Start-Service docker | Out-Null
     }
