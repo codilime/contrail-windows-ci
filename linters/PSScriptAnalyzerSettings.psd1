@@ -6,6 +6,7 @@
         "PSUseShouldProcessForStateChangingFunctions",      # We don't care about altering system state.
         "PSAvoidUsingConvertToSecureStringWithPlainText",   # We have creds mostly to testbed
                                                             # machines. We don't really care about them.
-        "PSUseSingularNouns"            # We sometimes like using plural nouns.
+        "PSUseSingularNouns",           # We sometimes like using plural nouns.
+        "PSAvoidUsingWMICmdlet"         # We tend to use WMI to access advanced Hyper-V features.
         )
 }
