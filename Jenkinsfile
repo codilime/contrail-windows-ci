@@ -58,7 +58,12 @@ pipeline {
                 deleteDir()
                 unstash "Linters"
                 unstash "SourceCode"
-                powershell script: "./Linters/Invoke-AllLinters.ps1 -RootDir . -Config ${env.WORKSPACE}/Linters/"
+                unstash "CIScripts"
+                // TODO. https://review.opencontrail.org/#/c/39677/ containts Powershell formatting fixes
+                // for contrail-controller. Until that PR is merged, just run the linters on 
+                // CIScripts/ directory. We need to swap, when aforementioned PR is merged.
+                powershell script: "./Linters/Invoke-AllLinters.ps1 -RootDir CIScripts/ -Config ${env.WORKSPACE}/Linters/"
+                // powershell script: "./Linters/Invoke-AllLinters.ps1 -RootDir . -Config ${env.WORKSPACE}/Linters/"
             }
         }
 
