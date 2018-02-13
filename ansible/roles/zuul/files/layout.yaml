@@ -18,11 +18,14 @@ pipelines:
         - event: comment-added
           comment: (?i)recheck windows$
     start:
-      gerrit: {}
+      gerrit:
+        verified: 0
     success:
-      gerrit: {}
+      gerrit:
+        verified: 1
     failure:
-      gerrit: {}
+      gerrit:
+        verified: -1
 
   - name: check-development
     description: Pipeline used for Windows CI development. It should always work in silent mode.
