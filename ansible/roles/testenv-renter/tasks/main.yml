@@ -1,0 +1,23 @@
+---
+
+- name: Include jenkins-partition role
+  include_role:
+    name: jenkins-partition
+
+- name: Update cache
+  apt:
+    update_cache: yes
+
+- name: Copy python-requirements.txt file
+  copy:
+    src: python-requirements.txt
+    dest: /tmp/python-requirements.txt
+
+- name: Install pip
+  package:
+    name: python3-pip
+    state: latest
+
+- name: Install required Python packages
+  pip:
+    requirements: /tmp/python-requirements.txt

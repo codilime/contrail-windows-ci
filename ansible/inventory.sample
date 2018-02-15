@@ -2,6 +2,7 @@
 tester
 builder
 ansible-worker
+testenv-renter
 
 [windows:children]
 tester
@@ -12,6 +13,7 @@ drive
 [linux:children]
 ansible-worker
 jenkins-server
+testenv-renter
 
 [ansible-worker]
 
@@ -24,6 +26,8 @@ jenkins-server
 [tester]
 
 [builder]
+
+[testenv-renter]
 
 [testbed]
 

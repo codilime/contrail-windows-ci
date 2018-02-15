@@ -14,4 +14,4 @@
 
 - hosts: "{{ vm_role }}"
   roles:
-    - wurbanski.jenkins-swarm-agent
+    - ansible-jenkins-swarm-agent

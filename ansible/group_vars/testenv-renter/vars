@@ -1,0 +1,2 @@
+ansible_user: ciadmin
+jenkins_agent_labels: "testenv-renter linux"

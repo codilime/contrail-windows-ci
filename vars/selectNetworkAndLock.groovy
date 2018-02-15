@@ -3,7 +3,7 @@ def call(firstNetworkId, networksCount) {
 
     dir('ansible/files') {
         def cmd = [
-            'python', 'select_network_and_lock.py',
+            'python3', 'select_network_and_lock.py',
             '--host', env.VC_HOSTNAME,
             '--user', env.VC_USR,
             '--password', env.VC_PSW,

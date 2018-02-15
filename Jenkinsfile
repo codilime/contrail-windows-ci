@@ -82,7 +82,7 @@ pipeline {
         }
 
         stage('Lock') {
-            agent { label 'ansible' }
+            agent { label 'testenv-renter' }
             when { environment name: "DONT_CREATE_TESTBEDS", value: null }
 
             steps {
