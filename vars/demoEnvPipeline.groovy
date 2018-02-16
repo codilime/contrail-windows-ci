@@ -8,6 +8,9 @@ def call(playbookToRun) {
 
     pipeline {
         agent { label "ansible" }
+        options {
+            timestamps()
+        }
 
         stages {
             stage("Prepare environment") {
