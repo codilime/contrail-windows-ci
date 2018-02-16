@@ -3,12 +3,13 @@ Param (
 )
 
 . $PSScriptRoot\..\Utils\CommonTestCode.ps1
+. $PSScriptRoot\..\Utils\ComponentsInstallation.ps1
 . $PSScriptRoot\..\TestConfigurationUtils.ps1
 . $PSScriptRoot\..\..\Common\Aliases.ps1
 . $PSScriptRoot\..\..\Common\VMUtils.ps1
 . $PSScriptRoot\..\PesterHelpers\PesterHelpers.ps1
 
-. $PSScriptRoot\..\GetTestConfigurationCodiLegacy.ps1
+. $PSScriptRoot\..\GetTestConfigurationJuni.ps1
 $TestConf = Get-TestConfiguration
 $Session = New-PSSession -ComputerName $TestbedAddr -Credential (Get-VMCreds)
 
@@ -91,7 +92,6 @@ Describe "vRouter Agent service" {
 
     BeforeEach {
         Initialize-DriverAndExtension -Session $Session -TestConfiguration $TestConf
-        Install-Agent -Session $Session
         New-AgentConfigFile -Session $Session -TestConfiguration $TestConf
     }
 
@@ -100,6 +100,17 @@ Describe "vRouter Agent service" {
         if ((Get-AgentServiceStatus -Session $Session) -eq "Running") {
             Disable-AgentService -Session $Session
         }
+    }
+
+    BeforeAll {
+        Install-Agent -Session $Session
+        Install-Extension -Session $Session
+        Install-Utils -Session $Session
+    }
+
+    AfterAll {
         Uninstall-Agent -Session $Session
+        Uninstall-Extension -Session $Session
+        Uninstall-Utils -Session $Session
     }
 }

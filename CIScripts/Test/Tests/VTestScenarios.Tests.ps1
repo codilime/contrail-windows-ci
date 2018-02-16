@@ -3,6 +3,7 @@ Param (
 )
 
 . $PSScriptRoot\..\Utils\CommonTestCode.ps1
+. $PSScriptRoot\..\Utils\ComponentsInstallation.ps1
 . $PSScriptRoot\..\TestConfigurationUtils.ps1
 . $PSScriptRoot\..\..\Common\VMUtils.ps1
 . $PSScriptRoot\..\PesterHelpers\PesterHelpers.ps1
@@ -24,7 +25,7 @@ Describe "vTest scenarios" {
         } | Should Not Throw
     }
 
-    BeforeEach {
+    BeforeAll {
         Install-Extension -Session $Session
         Install-Utils -Session $Session
         Enable-VRouterExtension -Session $Session -AdapterName $TestConf.AdapterName `
@@ -34,7 +35,7 @@ Describe "vTest scenarios" {
         $VMSwitchName = $TestConf.VMSwitchName
     }
 
-    AfterEach {
+    AfterAll {
         Clear-TestConfiguration -Session $Session -TestConfiguration $TestConf
         Uninstall-Utils -Session $Session
         Uninstall-Extension -Session $Session
