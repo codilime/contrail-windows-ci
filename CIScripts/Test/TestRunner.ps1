@@ -48,10 +48,7 @@ function Run-TestScenarios {
 
     $TestsBlacklist = @(
         # Requires Docker Driver
-        "vRouterAgentService.Tests.ps1",
-
-        # Requires Agent
-        "vRouterAgentMSIInstaller.Tests.ps1"
+        "vRouterAgentService.Tests.ps1"
     )
 
     $TotalFailedCount = 0
