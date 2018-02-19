@@ -58,7 +58,7 @@ pipeline {
                 unstash "Linters"
                 unstash "SourceCode"
                 unstash "CIScripts"
-                powershell script: "./Linters/Invoke-AllLinters.ps1 -RootDir . -Config $pwd/Linters"
+                powershell script: "./Linters/Invoke-AllLinters.ps1 -RootDir . -Config ${pwd()}/Linters"
             }
         }
 
