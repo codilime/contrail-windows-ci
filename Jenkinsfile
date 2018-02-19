@@ -38,7 +38,7 @@ pipeline {
         }
 
         stage ('Checkout projects') {
-            agent { label 'windows' }
+            agent { label 'builder' }
             environment {
                 DRIVER_SRC_PATH = "github.com/Juniper/contrail-windows-docker-driver"
             }
