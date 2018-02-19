@@ -1,9 +1,20 @@
 . $PSScriptRoot\Aliases.ps1
 
-function Get-VMCredential {
+function Get-TestbedCredential {
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingConvertToSecureStringWithPlainText",
+        "", Justification="This are just credentials to a testbed VM.")]
+    param()
     $VMUsername = "WORKGROUP\{0}" -f $Env:TESTBED_USR
     $VMPassword = $Env:TESTBED_PSW | ConvertTo-SecureString -AsPlainText -Force
     return New-Object PSCredentialT($VMUsername, $VMPassword)
+}
+
+function Get-MgmtCreds {
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingConvertToSecureStringWithPlainText",
+    "", Justification="This env var is injected by Jenkins.")]
+    param()
+    $Password = $Env:WINCIDEV_PSW | ConvertTo-SecureString -AsPlainText -Force
+    return New-Object PSCredentialT ($Env:WINCIDEV_USR, $Password)
 }
 
 function New-RemoteSessions {
@@ -38,7 +49,7 @@ function New-RemoteSessionsToTestbeds {
         throw "Cannot create remote sessions to testbeds: $Env:TESTBED_ADDRESSES not set"
     }
 
-    $Creds = Get-VMCredential
+    $Creds = Get-TestbedCredential
 
     $Testbeds = Get-TestbedAddressesFromEnv
     return New-RemoteSessions -VMNames $Testbeds -Creds $Creds

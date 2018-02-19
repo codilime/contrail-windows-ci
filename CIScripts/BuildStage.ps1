@@ -1,9 +1,10 @@
 . $PSScriptRoot\Common\Job.ps1
 . $PSScriptRoot\Common\Aliases.ps1
+. $PSScriptRoot\Common\VMUtils.ps1
+
+$Credentials = Get-MgmtCreds
 
 $OutputRootDirectory = "output"
-$Password = $Env:WINCIDEV_PSW | ConvertTo-SecureString -asPlainText -Force
-$Credentials = New-Object PSCredentialT ($Env:WINCIDEV_USR, $Password)
 $NothingToBuild = $Env:COMPONENTS_TO_BUILD -eq "None"
 $CopyDisabledArtifacts = Test-Path Env:COPY_DISABLED_ARTIFACTS
 

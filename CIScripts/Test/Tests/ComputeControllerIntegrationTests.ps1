@@ -1,5 +1,4 @@
-$Accel = [PowerShell].Assembly.GetType("System.Management.Automation.TypeAccelerators")
-$Accel::add("PSSessionT", "System.Management.Automation.Runspaces.PSSession")
+. $PSScriptRoot\Aliases.ps1
 
 function Test-ComputeControllerIntegration {
     Param ([Parameter(Mandatory = $true)] [PSSessionT] $Session,
@@ -28,6 +27,8 @@ function Test-ComputeControllerIntegration {
     }
 
     function Connect-ToController {
+        [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingConvertToSecureStringWithPlainText",
+            "", Justification="This are just credentials to a testbed controller.")]
         [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingUserNameAndPassWordParams",
             Justification="We don't care that it's plaintext, it's just test env.")]
         [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingPlainTextForPassword",
