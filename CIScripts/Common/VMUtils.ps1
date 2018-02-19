@@ -48,9 +48,7 @@ function New-RemoteSessionsToTestbeds {
     if(-not $Env:TESTBED_ADDRESSES) {
         throw "Cannot create remote sessions to testbeds: $Env:TESTBED_ADDRESSES not set"
     }
-
     $Creds = Get-TestbedCredential
-
     $Testbeds = Get-TestbedAddressesFromEnv
     return New-RemoteSessions -VMNames $Testbeds -Creds $Creds
 }
