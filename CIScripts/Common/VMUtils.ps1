@@ -38,7 +38,7 @@ function New-RemoteSessions {
         }
 
         [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseDeclaredVarsMoreThanAssignments",
-            "", Justification="PSA #804")]
+            "", Justification="Issue #804 from PSScriptAnalyzer GitHub")]
         $Sessions += $Sess
     })
     return $Sessions

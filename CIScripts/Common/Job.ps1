@@ -79,7 +79,7 @@ class JobStep {
         $msg = ""
         1..($IndentLevel) | ForEach-Object {
             [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseDeclaredVarsMoreThanAssignments",
-                "", Justification="Issue #804")]
+                "", Justification="Issue #804 from PSScriptAnalyzer GitHub")]
             $msg += " "
         }
         $msg += "- [" + ($this.GetResult()) + "]: " + $this.Name

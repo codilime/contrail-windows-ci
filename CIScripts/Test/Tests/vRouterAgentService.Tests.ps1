@@ -56,7 +56,7 @@ Describe "vRouter Agent service" {
                 -VMSwitchName $TestConf.VMSwitchName `
                 -ForwardingExtensionName $TestConf.ForwardingExtensionName
             [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseDeclaredVarsMoreThanAssignments",
-                "", Justification="PSA #804")]
+                "", Justification="Issue #804 from PSScriptAnalyzer GitHub")]
             $BeforeCrash = Invoke-Command -Session $Session -ScriptBlock { Get-Date }
             Enable-AgentService -Session $Session
         }
@@ -84,7 +84,7 @@ Describe "vRouter Agent service" {
         BeforeEach {
             Enable-AgentService -Session $Session
             [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseDeclaredVarsMoreThanAssignments",
-                "", Justification="PSA #804")]
+                "", Justification="Issue #804 from PSScriptAnalyzer GitHub")]
             $BeforeCrash = Invoke-Command -Session $Session -ScriptBlock { Get-Date }
             Disable-VRouterExtension -Session $Session `
                 -AdapterName $TestConf.AdapterName `

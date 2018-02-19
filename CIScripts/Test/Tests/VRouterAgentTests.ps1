@@ -315,7 +315,8 @@ function Test-VRouterAgentIntegration {
 
         Invoke-Command -Session $Session -ScriptBlock {
             [Diagnostics.CodeAnalysis.SuppressMessageAttribute(
-                "PSUseDeclaredVarsMoreThanAssignments", "", Justification="Issue #804")]
+                "PSUseDeclaredVarsMoreThanAssignments", "",
+                Justification="Issue #804 from PSScriptAnalyzer GitHub")]
             $JobListener = Start-Job -ScriptBlock {
                 param($ContainerName, $Command)
                 $Output = & docker exec $ContainerName powershell -Command $Command
@@ -345,7 +346,8 @@ function Test-VRouterAgentIntegration {
 
         Invoke-Command -Session $Session -ScriptBlock {
             [Diagnostics.CodeAnalysis.SuppressMessageAttribute(
-                "PSUseDeclaredVarsMoreThanAssignments", "", Justification="Issue #804")]
+                "PSUseDeclaredVarsMoreThanAssignments", "",
+                Justification="Issue #804 from PSScriptAnalyzer GitHub")]
             $JobSender = Start-Job -ScriptBlock {
                 param($ContainerName, $Command)
                 $Output = & docker exec $ContainerName powershell -Command $Command
@@ -1071,7 +1073,8 @@ function Test-VRouterAgentIntegration {
                     'return $ReceivedMessage;') -f $Using:Port
 
                 [Diagnostics.CodeAnalysis.SuppressMessageAttribute(
-                    "PSUseDeclaredVarsMoreThanAssignments", "", Justification="Issue #804")]
+                    "PSUseDeclaredVarsMoreThanAssignments", "",
+                    Justification="Issue #804 from PSScriptAnalyzer GitHub")]
                 $JobListener = Start-Job -ScriptBlock {
                     Param ($ContainerName, $Command)
                     & docker exec $ContainerName powershell -Command $Command
