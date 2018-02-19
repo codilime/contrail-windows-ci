@@ -10,7 +10,4 @@ if ($Output) {
       exit 1
 }
 
-# test
-$a = 0
-
 exit 0
