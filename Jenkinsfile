@@ -58,7 +58,7 @@ pipeline {
                 unstash "Linters"
                 unstash "SourceCode"
                 unstash "CIScripts"
-                powershell script: "./Linters/Invoke-AllLinters.ps1 -RootDir . -Config ${env.WORKSPACE}/Linters"
+                powershell script: "./Linters/Invoke-AllLinters.ps1 -RootDir . -Config $pwd/Linters"
             }
         }
 
@@ -111,7 +111,7 @@ pipeline {
                         // 'Cleanup' stage
                         node(label: 'ansible') {
                             deleteDir()
-                            unstash 'ansible'
+                            unstash 'Ansible'
 
                             inventoryFilePath = "${env.WORKSPACE}/ansible/vm.${env.BUILD_ID}"
 
@@ -125,7 +125,7 @@ pipeline {
                         // 'Provision' stage
                         node(label: 'ansible') {
                             deleteDir()
-                            unstash 'ansible'
+                            unstash 'Ansible'
 
                             inventoryFilePath = "${env.WORKSPACE}/ansible/vm.${env.BUILD_ID}"
 
