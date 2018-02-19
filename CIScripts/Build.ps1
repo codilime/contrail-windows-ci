@@ -31,7 +31,7 @@ if ("DockerDriver" -In $ComponentsToBuild) {
     Invoke-DockerDriverBuild -DriverSrcPath $Env:DRIVER_SRC_PATH `
         -SigntoolPath $Env:SIGNTOOL_PATH `
         -CertPath $Env:CERT_PATH `
-        -CertPasswdFilePath $Env:CERT_PASSWORD_FILE_PATH `
+        -CertPasswordFilePath $Env:CERT_PASSWORD_FILE_PATH `
         -OutputPath $DockerDriverOutputDir `
         -LogsPath $LogsDir
 }
@@ -40,7 +40,7 @@ if ("Extension" -In $ComponentsToBuild) {
     Invoke-ExtensionBuild -ThirdPartyCache $Env:THIRD_PARTY_CACHE_PATH `
         -SigntoolPath $Env:SIGNTOOL_PATH `
         -CertPath $Env:CERT_PATH `
-        -CertPasswdFilePath $Env:CERT_PASSWORD_FILE_PATH `
+        -CertPasswordFilePath $Env:CERT_PASSWORD_FILE_PATH `
         -ReleaseMode $IsReleaseMode `
         -OutputPath $vRouterOutputDir `
         -LogsPath $LogsDir
@@ -50,7 +50,7 @@ if ("Agent" -In $ComponentsToBuild) {
     Invoke-AgentBuild -ThirdPartyCache $Env:THIRD_PARTY_CACHE_PATH `
         -SigntoolPath $Env:SIGNTOOL_PATH `
         -CertPath $Env:CERT_PATH `
-        -CertPasswdFilePath $Env:CERT_PASSWORD_FILE_PATH `
+        -CertPasswordFilePath $Env:CERT_PASSWORD_FILE_PATH `
         -ReleaseMode $IsReleaseMode `
         -OutputPath $AgentOutputDir `
         -LogsPath $LogsDir

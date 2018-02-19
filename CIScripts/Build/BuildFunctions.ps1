@@ -22,12 +22,14 @@ function Initialize-BuildEnvironment {
 }
 
 function Set-MSISignature {
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingPlainTextForPassword",
+        "CertPasswordFilePath", Justification="It's filepath, not password.")]
     Param ([Parameter(Mandatory = $true)] [string] $SigntoolPath,
            [Parameter(Mandatory = $true)] [string] $CertPath,
-           [Parameter(Mandatory = $true)] [string] $CertPasswdFilePath,
+           [Parameter(Mandatory = $true)] [string] $CertPasswordFilePath,
            [Parameter(Mandatory = $true)] [string] $MSIPath)
     $Job.Step("Signing MSI", {
-        $cerp = Get-Content $CertPasswdFilePath
+        $cerp = Get-Content $CertPasswordFilePath
         Invoke-NativeCommand -ScriptBlock {
             & $SigntoolPath sign /f $CertPath /p $cerp $MSIPath
         }
@@ -35,10 +37,12 @@ function Set-MSISignature {
 }
 
 function Invoke-DockerDriverBuild {
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingPlainTextForPassword",
+        "CertPasswordFilePath", Justification="It's filepath, not password.")]
     Param ([Parameter(Mandatory = $true)] [string] $DriverSrcPath,
            [Parameter(Mandatory = $true)] [string] $SigntoolPath,
            [Parameter(Mandatory = $true)] [string] $CertPath,
-           [Parameter(Mandatory = $true)] [string] $CertPasswdFilePath,
+           [Parameter(Mandatory = $true)] [string] $CertPasswordFilePath,
            [Parameter(Mandatory = $true)] [string] $OutputPath,
            [Parameter(Mandatory = $true)] [string] $LogsPath)
 
@@ -105,7 +109,7 @@ function Invoke-DockerDriverBuild {
 
     Set-MSISignature -SigntoolPath $SigntoolPath `
                      -CertPath $CertPath `
-                     -CertPasswdFilePath $CertPasswdFilePath `
+                     -CertPasswordFilePath $CertPasswordFilePath `
                      -MSIPath "docker-driver.msi"
 
     Pop-Location
@@ -118,10 +122,12 @@ function Invoke-DockerDriverBuild {
 }
 
 function Invoke-ExtensionBuild {
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingPlainTextForPassword",
+        "CertPasswordFilePath", Justification="It's filepath, not password.")]
     Param ([Parameter(Mandatory = $true)] [string] $ThirdPartyCache,
            [Parameter(Mandatory = $true)] [string] $SigntoolPath,
            [Parameter(Mandatory = $true)] [string] $CertPath,
-           [Parameter(Mandatory = $true)] [string] $CertPasswdFilePath,
+           [Parameter(Mandatory = $true)] [string] $CertPasswordFilePath,
            [Parameter(Mandatory = $true)] [string] $OutputPath,
            [Parameter(Mandatory = $true)] [string] $LogsPath,
            [Parameter(Mandatory = $false)] [bool] $ReleaseMode = $false)
@@ -140,7 +146,7 @@ function Invoke-ExtensionBuild {
 
         [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseDeclaredVarsMoreThanAssignments",
             "", Justification="Cerp env variable required by vRouter build.")]
-        $Env:cerp = Get-Content $CertPasswdFilePath
+        $Env:cerp = Get-Content $CertPasswordFilePath
 
         Invoke-NativeCommand -ScriptBlock {
             scons $BuildModeOption vrouter | Tee-Object -FilePath $LogsDir/vrouter_build.log
@@ -156,13 +162,13 @@ function Invoke-ExtensionBuild {
     Write-Host "Signing utilsMSI"
     Set-MSISignature -SigntoolPath $SigntoolPath `
                      -CertPath $CertPath `
-                     -CertPasswdFilePath $CertPasswdFilePath `
+                     -CertPasswordFilePath $CertPasswordFilePath `
                      -MSIPath $utilsMSI
 
     Write-Host "Signing vRouterMSI"
     Set-MSISignature -SigntoolPath $SigntoolPath `
                      -CertPath $CertPath `
-                     -CertPasswdFilePath $CertPasswdFilePath `
+                     -CertPasswordFilePath $CertPasswordFilePath `
                      -MSIPath $vRouterMSI
 
     $Job.Step("Copying artifacts to $OutputPath", {
@@ -176,10 +182,12 @@ function Invoke-ExtensionBuild {
 }
 
 function Invoke-AgentBuild {
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingPlainTextForPassword",
+        "CertPasswordFilePath", Justification="It's filepath, not password.")]
     Param ([Parameter(Mandatory = $true)] [string] $ThirdPartyCache,
            [Parameter(Mandatory = $true)] [string] $SigntoolPath,
            [Parameter(Mandatory = $true)] [string] $CertPath,
-           [Parameter(Mandatory = $true)] [string] $CertPasswdFilePath,
+           [Parameter(Mandatory = $true)] [string] $CertPasswordFilePath,
            [Parameter(Mandatory = $true)] [string] $OutputPath,
            [Parameter(Mandatory = $true)] [string] $LogsPath,
            [Parameter(Mandatory = $false)] [bool] $ReleaseMode = $false)
@@ -216,7 +224,7 @@ function Invoke-AgentBuild {
     Write-Host "Signing agentMSI"
     Set-MSISignature -SigntoolPath $SigntoolPath `
                      -CertPath $CertPath `
-                     -CertPasswdFilePath $CertPasswdFilePath `
+                     -CertPasswordFilePath $CertPasswordFilePath `
                      -MSIPath $agentMSI
 
     $Job.Step("Copying artifacts to $OutputPath", {
