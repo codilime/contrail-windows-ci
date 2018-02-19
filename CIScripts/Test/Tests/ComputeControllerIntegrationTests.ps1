@@ -1,4 +1,4 @@
-. $PSScriptRoot\Aliases.ps1
+. $PSScriptRoot\..\..\Common\Aliases.ps1
 
 function Test-ComputeControllerIntegration {
     Param ([Parameter(Mandatory = $true)] [PSSessionT] $Session,

@@ -13,10 +13,19 @@ Initialize-BuildEnvironment -ThirdPartyCache $Env:THIRD_PARTY_CACHE_PATH
 
 $DockerDriverOutputDir = "output/docker_driver"
 $vRouterOutputDir = "output/vrouter"
+$vtestOutputDir = "output/vtest"
 $AgentOutputDir = "output/agent"
+$DllsOutputDir = "output/dlls"
 $LogsDir = "logs"
 
-$Directories = @("$DockerDriverOutputDir", "$vRouterOutputDir", "$AgentOutputDir", "$LogsDir")
+$Directories = @(
+    $DockerDriverOutputDir,
+    $vRouterOutputDir,
+    $vtestOutputDir,
+    $AgentOutputDir,
+    $DllsOutputDir,
+    $LogsDir
+)
 
 foreach ($Directory in $Directories) {
     if (-not (Test-Path $Directory)) {
@@ -44,6 +53,8 @@ if ("Extension" -In $ComponentsToBuild) {
         -ReleaseMode $IsReleaseMode `
         -OutputPath $vRouterOutputDir `
         -LogsPath $LogsDir
+
+    Copy-VtestScenarios -OutputPath $vtestOutputDir
 }
 
 if ("Agent" -In $ComponentsToBuild) {
@@ -59,6 +70,10 @@ if ("Agent" -In $ComponentsToBuild) {
 if ("AgentTests" -In $ComponentsToBuild) {
     Invoke-AgentTestsBuild -LogsPath $LogsDir `
         -ReleaseMode $IsReleaseMode
+}
+
+if (-not $isReleaseMode) {
+    Copy-DebugDlls -OutputPath $DllsOutputDir
 }
 
 $Job.Done()
