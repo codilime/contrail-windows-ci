@@ -2,7 +2,7 @@
 library "contrailWindows@$BRANCH_NAME"
 
 def mgmtNetwork
-def dataNetwork
+def testNetwork
 def vmwareConfig
 def inventoryFilePath
 def testEnvName
@@ -20,7 +20,7 @@ pipeline {
 
     stages {
         stage('Preparation') {
-            agent { label 'builder' }
+            agent { label 'ansible' }
             steps {
                 deleteDir()
 
@@ -29,7 +29,6 @@ pipeline {
 
                 script {
                     mgmtNetwork = env.TESTENV_MGMT_NETWORK
-                    dataNetwork = calculateTestNetwork(env.BUILD_ID as int)
                 }
 
                 stash name: "CIScripts", includes: "CIScripts/**"
@@ -89,78 +88,73 @@ pipeline {
             }
         }
 
-        // NOTE: Currently nesting multiple stages in lock directive is unsupported
-        stage('Provision & Deploy & Test') {
+        stage('Cleanup-Provision-Deploy-Test') {
             agent none
             when { environment name: "DONT_CREATE_TESTBEDS", value: null }
-            environment {
-                // Required in 'Provision' stages
-                VC = credentials('vcenter')
 
-                // Required in 'Deploy' and 'Test' stages
+            environment {
+                VC = credentials('vcenter')
                 // TODO actually create this file
                 TEST_CONFIGURATION_FILE = "GetTestConfigurationJuni.ps1"
                 TESTBED = credentials('win-testbed')
                 ARTIFACTS_DIR = "output"
             }
+
             steps {
                 script {
-                    try {
-                        lock(dataNetwork) {
-                            // 'Provision' stage
-                            node(label: 'ansible') {
-                                deleteDir()
-                                unstash 'Ansible'
+                    lock(label: 'testenv_pool', quantity: 1) {
+                        testNetwork = getLockedNetworkName()
+                        vmwareConfig = getVMwareConfig()
+                        testEnvName = getTestEnvName(testNetwork)
+                        testEnvFolder = env.VC_FOLDER
 
-                                script {
-                                    vmwareConfig = getVMwareConfig()
-                                    inventoryFilePath = "${env.WORKSPACE}/ansible/vm.${env.BUILD_ID}"
-                                    testEnvName = generateTestEnvName()
-                                    testEnvFolder = env.VC_FOLDER
-                                }
+                        // 'Cleanup' stage
+                        node(label: 'ansible') {
+                            deleteDir()
+                            unstash 'ansible'
 
-                                prepareTestEnv(inventoryFilePath, testEnvName, testEnvFolder,
-                                               mgmtNetwork, dataNetwork,
-                                               env.TESTBED_TEMPLATE, env.CONTROLLER_TEMPLATE)
-                                provisionTestEnv(vmwareConfig)
+                            inventoryFilePath = "${env.WORKSPACE}/ansible/vm.${env.BUILD_ID}"
 
-                                script {
-                                    testbeds = parseTestbedAddresses(inventoryFilePath)
-                                }
-                            }
+                            prepareTestEnv(inventoryFilePath, testEnvName, testEnvFolder,
+                                           mgmtNetwork, testNetwork,
+                                           env.TESTBED_TEMPLATE, env.CONTROLLER_TEMPLATE)
 
-                            // 'Deploy' stage
-                            node(label: 'tester') {
-                                deleteDir()
-
-                                unstash "CIScripts"
-                                unstash "Artifacts"
-
-                                script {
-                                    env.TESTBED_ADDRESSES = testbeds.join(',')
-                                }
-
-                                powershell script: './CIScripts/Deploy.ps1'
-                            }
-
-                            // 'Test' stage
-                            node(label: 'tester') {
-                                deleteDir()
-                                unstash "CIScripts"
-                                // powershell script: './CIScripts/Test.ps1'
-                            }
+                            destroyTestEnv(vmwareConfig)
                         }
-                    }
-                    catch(err) {
-                        echo "Error occured during test stage: ${err}"
-                        currentBuild.result = "SUCCESS"
-                    }
-                }
-            }
-            post {
-                always {
-                    node(label: 'ansible') {
-                        destroyTestEnv(vmwareConfig)
+
+                        // 'Provision' stage
+                        node(label: 'ansible') {
+                            deleteDir()
+                            unstash 'ansible'
+
+                            inventoryFilePath = "${env.WORKSPACE}/ansible/vm.${env.BUILD_ID}"
+
+                            prepareTestEnv(inventoryFilePath, testEnvName, testEnvFolder,
+                                           mgmtNetwork, testNetwork,
+                                           env.TESTBED_TEMPLATE, env.CONTROLLER_TEMPLATE)
+
+                            provisionTestEnv(vmwareConfig)
+                            testbeds = parseTestbedAddresses(inventoryFilePath)
+                        }
+
+                        // 'Deploy' stage
+                        node(label: 'tester') {
+                            deleteDir()
+
+                            unstash 'CIScripts'
+                            unstash 'WinArt'
+
+                            env.TESTBED_ADDRESSES = testbeds.join(',')
+
+                            powershell script: './CIScripts/Deploy.ps1'
+                        }
+
+                        // 'Test' stage
+                        node(label: 'tester') {
+                            deleteDir()
+                            unstash 'CIScripts'
+                            // powershell script: './CIScripts/Test.ps1'
+                        }
                     }
                 }
             }
