@@ -47,7 +47,10 @@ function Invoke-DockerDriverBuild {
            [Parameter(Mandatory = $true)] [string] $LogsPath)
 
     $Job.PushStep("Docker driver build")
-    $GoPath = if (Test-Path Env:GOPATH) { ( Get-Location ) + ";$Env:GOPATH" } else { Get-Location }
+    $GoPath = Get-Location
+    if (Test-Path Env:GOPATH) {
+        $GoPath +=  ";$Env:GOPATH"
+    }
     $Env:GOPATH = $GoPath
     $srcPath = "$GoPath/src/$DriverSrcPath"
 
