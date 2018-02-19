@@ -9,11 +9,12 @@ def call(playbookToRun) {
     pipeline {
         agent { label "ansible" }
 
+        environment {
+            VC = credentials("vcenter")
+        }
+
         stages {
             stage("Prepare environment") {
-                environment {
-                    VC = credentials("vcenter")
-                }
                 steps {
                     script {
                         vmwareConfig = getVMwareConfig()

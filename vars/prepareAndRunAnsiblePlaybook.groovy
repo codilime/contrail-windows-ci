@@ -5,12 +5,14 @@ def call(Map params) {
   def vmWareConfig
   pipeline {
     agent none
+
+    environment {
+      VC = credentials('vcenter')
+    }
+
     stages {
       stage('Prepare environment') {
         agent { label 'ansible' }
-        environment {
-          VC = credentials('vcenter')
-        }
         steps {
           dir('ansible') {
             createCommonVars env.SHARED_DRIVE_IP, env.JENKINS_MASTER_IP
