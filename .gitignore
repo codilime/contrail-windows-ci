@@ -15,3 +15,6 @@ CIScripts/JenkinsTesterDSC/JenkinsTester
 
 ### Python ###
 *.pyc
+
+### Visual Studio Code
+.vscode/

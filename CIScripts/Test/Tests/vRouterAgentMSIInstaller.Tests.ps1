@@ -1,5 +1,6 @@
 Param (
-    [Parameter(Mandatory=$true)] [string] $TestbedAddr
+    [Parameter(Mandatory=$true)] [string] $TestbedAddr,
+    [Parameter(Mandatory=$true)] [string] $TestConfigurationFile
 )
 
 . $PSScriptRoot\..\Utils\CommonTestCode.ps1
@@ -9,7 +10,7 @@ Param (
 . $PSScriptRoot\..\..\Common\VMUtils.ps1
 . $PSScriptRoot\..\PesterHelpers\PesterHelpers.ps1
 
-. $PSScriptRoot\..\GetTestConfigurationJuni.ps1
+. $PSScriptRoot\..\($TestConfigurationFile)
 $TestConf = Get-TestConfiguration
 $Session = New-PSSession -ComputerName $TestbedAddr -Credential (Get-VMCreds)
 

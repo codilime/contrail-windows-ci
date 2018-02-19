@@ -63,7 +63,8 @@ function Run-TestScenarios {
         $PesterRunScript = @{
             Path=$TestPath.FullName; 
             Parameters= @{
-                TestbedAddr=$Sessions[0].ComputerName
+                TestbedAddr=$Sessions[0].ComputerName;
+                ConfigFile=$TestConfigurationFile
             }; 
             Arguments=@()
         }
