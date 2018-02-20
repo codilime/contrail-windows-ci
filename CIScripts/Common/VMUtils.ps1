@@ -7,7 +7,7 @@ function Get-TestbedCredential {
     if(-not $Env:TESTBED_USR) {
         return Get-Credential # assume interactive mode
     } else {
-        $VMUsername = "WORKGROUP\{0}" -f $Env:TESTBED_USR
+        $VMUsername = Get-UsernameInWorkgroup -Username $Env:TESTBED_USR
         $VMPassword = $Env:TESTBED_PSW | ConvertTo-SecureString -AsPlainText -Force
         return New-Object PSCredentialT($VMUsername, $VMPassword)
     }
@@ -17,9 +17,14 @@ function Get-MgmtCreds {
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingConvertToSecureStringWithPlainText",
     "", Justification="This env var is injected by Jenkins.")]
     param()
-    $Username = "WORKGROUP\{0}" -f $Env:WINCIDEV_USR
+    $Username = Get-UsernameInWorkgroup -Username $Env:WINCIDEV_USR
     $Password = $Env:WINCIDEV_PSW | ConvertTo-SecureString -asPlainText -Force
     return New-Object PSCredentialT ($Username, $Password)
+}
+
+function Get-UsernameInWorkgroup {
+    Param ([Parameter(Mandatory = $true)] [string] $Username)
+    return "WORKGROUP\{0}" -f $Username
 }
 
 function New-RemoteSessions {
