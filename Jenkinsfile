@@ -50,7 +50,7 @@ pipeline {
             }
         }
 
-        stage('Lint') {
+        stage('Static analysis') {
             // TODO: 'scriptanalyzer' is feature flag label; change to 'builder' after rollout done
             agent { label 'scriptanalyzer' }
             steps {
@@ -58,7 +58,7 @@ pipeline {
                 unstash "Linters"
                 unstash "SourceCode"
                 unstash "CIScripts"
-                powershell script: "./Linters/Invoke-AllLinters.ps1 -RootDir . -Config ${pwd()}/Linters"
+                powershell script: "./Linters/Invoke-StaticAnalysisTools.ps1 -RootDir . -Config ${pwd()}/StaticAnalysis"
             }
         }
 
