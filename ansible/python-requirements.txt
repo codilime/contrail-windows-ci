@@ -11,3 +11,7 @@ netaddr
 pyvmomi
 requests-credssp
 xmltodict
+
+# For monitoring
+SQLAlchemy==1.2.3
+mysqlclient==1.3.12
