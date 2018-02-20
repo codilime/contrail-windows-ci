@@ -10,7 +10,7 @@ Param (
 . $PSScriptRoot\..\..\Common\VMUtils.ps1
 . $PSScriptRoot\..\PesterHelpers\PesterHelpers.ps1
 
-. $PSScriptRoot\..\($TestConfigurationFile)
+. $TestConfigurationFile
 $TestConf = Get-TestConfiguration
 $Session = New-PSSession -ComputerName $TestbedAddr -Credential (Get-VMCreds)
 
