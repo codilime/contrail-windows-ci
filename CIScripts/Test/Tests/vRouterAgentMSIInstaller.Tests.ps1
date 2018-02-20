@@ -1,6 +1,10 @@
+# TODO: remove after these tests are fixed and TestConf is used again.
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseDeclaredVarsMoreThanAssignments",
+    "", Justification="Issue #804 from PSScriptAnalyzer GitHub")]
+
 Param (
     [Parameter(Mandatory=$true)] [string] $TestbedAddr
-)
+    )
 
 . $PSScriptRoot\..\Utils\CommonTestCode.ps1
 . $PSScriptRoot\..\TestConfigurationUtils.ps1
