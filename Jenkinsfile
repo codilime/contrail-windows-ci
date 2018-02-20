@@ -143,7 +143,7 @@ pipeline {
                             deleteDir()
 
                             unstash 'CIScripts'
-                            unstash 'WinArt'
+                            unstash 'Artifacts'
 
                             env.TESTBED_ADDRESSES = testbeds.join(',')
 
