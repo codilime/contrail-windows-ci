@@ -13,11 +13,6 @@
   with_items:
     - ansible
 
-- name: Set registry port
-  set_fact:
-    registry_port: "{{ docker_registry.port }}"
-  when: registry_port is not defined
-
 - name: Copy hosts template
   template:
     src: inventory/hosts.j2

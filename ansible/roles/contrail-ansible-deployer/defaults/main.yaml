@@ -1,8 +1,6 @@
 docker_provision_dir: "/tmp/contrail-ansible-deployer"
 cloud_orchestrator: openstack
 openstack_version: "ocata"
-contrail_version: "5.0-20180217235852"
+contrail_version: "master-20180220070035"
 physical_interface: "ens224"
-docker_registry:
-  fqdn: satellite.englab.juniper.net
-  port: 5443
+docker_registry: "opencontrailnightly"
