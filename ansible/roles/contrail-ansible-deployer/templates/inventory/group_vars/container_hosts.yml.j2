@@ -1,9 +1,13 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 CONTAINER_REGISTRY: "{{ docker_registry }}"
 REGISTRY_PRIVATE_SECURE: true
 REGISTRY_PRIVATE_INSECURE: false
 =======
 CONTAINER_REGISTRY: "{{ docker_registry.fqdn }}:{{ registry_port }}"
+=======
+CONTAINER_REGISTRY: "{{ docker_registry }}"
+>>>>>>> be43def... JW-1433 : Minor refactor
 REGISTRY_PRIVATE_SECURE: false
 REGISTRY_PRIVATE_INSECURE: true
 >>>>>>> 58a7fd1... JW-1433 : Adding roles contrail-ansible-deployer, kolla-provision-dockers and
@@ -14,10 +18,14 @@ contrail_configuration:
   CLOUD_ORCHESTRATOR: "{{ cloud_orchestrator }}"
   LINUX_DISTR: centos7
 <<<<<<< HEAD
+<<<<<<< HEAD
   CONTAINER_REGISTRY: "{{ docker_registry }}"
 =======
   CONTAINER_REGISTRY: "{{ docker_registry.fqdn }}:{{ registry_port }}"
 >>>>>>> 58a7fd1... JW-1433 : Adding roles contrail-ansible-deployer, kolla-provision-dockers and
+=======
+  CONTAINER_REGISTRY: "{{ docker_registry }}"
+>>>>>>> be43def... JW-1433 : Minor refactor
   PHYSICAL_INTERFACE: "{{ physical_interface }}"
   VROUTER_GATEWAY: 172.16.0.1
 {% if cloud_orchestrator == 'openstack' %}

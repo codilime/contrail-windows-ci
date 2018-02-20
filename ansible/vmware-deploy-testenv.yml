@@ -38,6 +38,12 @@
   - role: vmware-vm
     action: deploy
 
+# TODO handle updated inventory
+- hosts: controller
+  gather_facts: yes
+  roles:
+  - controller
+
 # TODO wait for whole testenv, not only testbeds
 - hosts: testbed
   gather_facts: no
