@@ -17,8 +17,9 @@ function Get-MgmtCreds {
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingConvertToSecureStringWithPlainText",
     "", Justification="This env var is injected by Jenkins.")]
     param()
-    $Password = $Env:WINCIDEV_PSW | ConvertTo-SecureString -AsPlainText -Force
-    return New-Object PSCredentialT ($Env:WINCIDEV_USR, $Password)
+    $Username = "WORKGROUP\{0}" -f $Env:WINCIDEV_USR
+    $Password = $Env:WINCIDEV_PSW | ConvertTo-SecureString -asPlainText -Force
+    return New-Object PSCredentialT ($Username, $Password)
 }
 
 function New-RemoteSessions {
