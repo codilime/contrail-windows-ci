@@ -9,7 +9,7 @@ Param (
 
 . $PSScriptRoot\..\GetTestConfigurationJuni.ps1
 $TestConf = Get-TestConfiguration
-$Session = New-PSSession -ComputerName $TestbedAddr -Credential (Get-VMCreds)
+$Session = New-PSSession -ComputerName $TestbedAddr -Credential (Get-TestbedCredential)
 
 Describe "vTest scenarios" {
     It "passes all vtest scenarios" {

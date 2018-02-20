@@ -10,7 +10,7 @@ Param (
 
 . $PSScriptRoot\..\GetTestConfigurationCodiLegacy.ps1
 $TestConf = Get-TestConfiguration
-$Session = New-PSSession -ComputerName $TestbedAddr -Credential (Get-VMCreds)
+$Session = New-PSSession -ComputerName $TestbedAddr -Credential (Get-TestbedCredential)
 
 Describe "vRouter Agent service" {
     Context "enabling" {

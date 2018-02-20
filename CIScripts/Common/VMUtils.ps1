@@ -4,9 +4,13 @@ function Get-TestbedCredential {
     [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingConvertToSecureStringWithPlainText",
         "", Justification="This are just credentials to a testbed VM.")]
     param()
-    $VMUsername = "WORKGROUP\{0}" -f $Env:TESTBED_USR
-    $VMPassword = $Env:TESTBED_PSW | ConvertTo-SecureString -AsPlainText -Force
-    return New-Object PSCredentialT($VMUsername, $VMPassword)
+    if(-not $Env:TESTBED_USR) {
+        return Get-Credential # assume interactive mode
+    } else {
+        $VMUsername = "WORKGROUP\{0}" -f $Env:TESTBED_USR
+        $VMPassword = $Env:TESTBED_PSW | ConvertTo-SecureString -AsPlainText -Force
+        return New-Object PSCredentialT($VMUsername, $VMPassword)
+    }
 }
 
 function Get-MgmtCreds {
