@@ -32,7 +32,7 @@ pipeline {
                 }
 
                 stash name: "CIScripts", includes: "CIScripts/**"
-                stash name: "Linters", includes: "Linters/**"
+                stash name: "StaticAnalysis", includes: "StaticAnalysis/**"
                 stash name: "Ansible", includes: "ansible/**"
             }
         }
@@ -55,10 +55,10 @@ pipeline {
             agent { label 'scriptanalyzer' }
             steps {
                 deleteDir()
-                unstash "Linters"
+                unstash "StaticAnalysis"
                 unstash "SourceCode"
                 unstash "CIScripts"
-                powershell script: "./Linters/Invoke-StaticAnalysisTools.ps1 -RootDir . -Config ${pwd()}/StaticAnalysis"
+                powershell script: "./StaticAnalysis/Invoke-StaticAnalysisTools.ps1 -RootDir . -Config ${pwd()}/StaticAnalysis"
             }
         }
 
