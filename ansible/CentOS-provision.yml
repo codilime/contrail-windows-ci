@@ -11,24 +11,26 @@
       groups: controller
 
 - hosts: masterController
-  pre_tasks:
-    - name: Install build dependencies
-      package:
-        use: yum
-        name: "{{ item }}"
-        state: latest
-      become: true
-      with_items:
-        - centos-release-openstack-ocata
-    - name: Install build dependencies
-      package:
-        use: yum
-        name: "{{ item }}"
-        state: latest
-      become: true
-      with_items:
-        - python2-requests
-        - git
+  roles:
+    - controller
+  # pre_tasks:
+  #   - name: Install build dependencies
+  #     package:
+  #       use: yum
+  #       name: "{{ item }}"
+  #       state: latest
+  #     become: true
+  #     with_items:
+  #       - centos-release-openstack-ocata
+  #   - name: Install build dependencies
+  #     package:
+  #       use: yum
+  #       name: "{{ item }}"
+  #       state: latest
+  #     become: true
+  #     with_items:
+  #       - python2-requests
+  #       - git
 
 # - hosts: masterController
 #   pre_tasks:
