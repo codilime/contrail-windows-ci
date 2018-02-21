@@ -1,11 +1,12 @@
 ---
-- name: Install build dependencies
+- name: Install openstack build dependencies
   package:
     name: "{{ item }}"
     state: latest
   become: true
   with_items:
     - centos-release-openstack-ocata
+
 - name: Install build dependencies
   package:
     name: "{{ item }}"
@@ -14,10 +15,13 @@
   with_items:
     - python2-requests
     - git
+
 - include_role:
     name: contrail-ansible-deployer
+
 - include_role:
     name: kolla-provision-dockers
+
 - name: Start all containers that were stopped during kolla docker daemon restart (pass one - network containers)
   shell: 'docker ps -a  --format "{% raw %}{{.Names}}{% endraw %}" | while read line; do docker start $line; done'
   ignore_errors: true
