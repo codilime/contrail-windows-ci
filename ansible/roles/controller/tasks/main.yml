@@ -16,12 +16,10 @@
     - python2-requests
     - git
 
-- name: Provision OpenContrail using contrail-ansible-deployer role
-  include_role:
+- include_role:
     name: contrail-ansible-deployer
 
-- name: Provision OpenStack using kolla-provision-dockers role
-  include_role:
+- include_role:
     name: kolla-provision-dockers
 
 - name: Start all containers that were stopped during kolla docker daemon restart (pass one - network containers)
