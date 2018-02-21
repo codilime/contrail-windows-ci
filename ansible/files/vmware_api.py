@@ -212,13 +212,14 @@ def _get_vm_customization_adapter_map(data_ip_address, data_netmask):
 
 
 def get_vm_customization_spec(template, name, org, username, password, data_ip_address, data_netmask):
-    customization_spec = vim.vm.customization.Specification()
-    customization_spec.globalIPSettings  = vim.vm.customization.GlobalIPSettings()
+    # customization_spec = vim.vm.customization.Specification()
+    # customization_spec.globalIPSettings  = vim.vm.customization.GlobalIPSettings()
 
-    customization_spec.identity = _get_vm_customization_identity_spec(template, name, org, username, password)
-    customization_spec.nicSettingMap = _get_vm_customization_adapter_map(data_ip_address, data_netmask)
+    # customization_spec.identity = _get_vm_customization_identity_spec(template, name, org, username, password)
+    # customization_spec.nicSettingMap = _get_vm_customization_adapter_map(data_ip_address, data_netmask)
 
-    return customization_spec
+    # return customization_spec
+    return None
 
 
 def get_vm_relocate_spec(cluster, host, datastore):
