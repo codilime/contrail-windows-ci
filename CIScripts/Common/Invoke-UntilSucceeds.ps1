@@ -31,11 +31,7 @@ function Invoke-UntilSucceeds {
     $ReturnVal = $null
     do {
         try {
-            try {
-                $ReturnVal = & $ScriptBlock
-            } catch [PropertyNotFoundException] {
-                $ReturnVal = $null
-            }
+            $ReturnVal = & $ScriptBlock
             if (Test-Path Variable:ReturnVal) {
                 if ($ReturnVal) {
                     break
