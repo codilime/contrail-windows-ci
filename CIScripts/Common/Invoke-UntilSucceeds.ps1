@@ -32,7 +32,7 @@ function Invoke-UntilSucceeds {
     do {
         try {
             $ReturnVal = & $ScriptBlock
-            if ($ReturnVal -eq $null) {
+            if ($null -eq $ReturnVal) {
                 # Satisfy Strict Mode - check if $ReturnVal is $null before using it in a
                 # conditional expression.
                 throw New-Object -TypeName CITimeoutException("Did not evaluate to True." + 
