@@ -14,5 +14,4 @@
       --mgmt-network {{ portgroup_mgmt }} \
       --data-network {{ portgroup_contrail }} \
       --data-ip-address 172.16.0.1 \
-      --data-netmask 255.255.0.0 \
-      --no-customize
+      --data-netmask 255.255.0.0

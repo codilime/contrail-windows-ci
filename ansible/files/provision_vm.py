@@ -61,11 +61,6 @@ def get_args():
                         action='store',
                         help='Password to set for default user on Windows')
 
-    parser.add_argument('--no-customize',
-                        required=False,
-                        default=False,
-                        action='store_true',
-                        help='If set to True customization of operating system will happen')
 
     args = parser.parse_args()
 
@@ -95,20 +90,17 @@ def provision_vm(api, args):
     if not host or not datastore:
         raise ResourceNotFound('Choosing appropriate host and datastore failed')
 
-    if args.no_customize:
-        customization_spec = None
-    else:
-        customization_data = {
-        'name': args.name,
-        'org': 'Contrail',
-        'username': args.vm_username,
-        'password': args.vm_password,
-        'data_ip_address': args.data_ip_address,
-        'data_netmask': args.data_netmask
-        }
-        customization_spec = get_vm_customization_spec(template, **customization_data)
+    customization_data = {
+    'name': args.name,
+    'org': 'Contrail',
+    'username': args.vm_username,
+    'password': args.vm_password,
+    'data_ip_address': args.data_ip_address,
+    'data_netmask': args.data_netmask
+    }
 
     config_spec = get_vm_config_spec(api, vm=template, networks=[args.mgmt_network, args.data_network])
+    customization_spec = get_vm_customization_spec(template, **customization_data)
     relocate_spec = get_vm_relocate_spec(api.cluster, host, datastore)
     clone_spec = get_vm_clone_spec(config_spec, customization_spec, relocate_spec)
 
