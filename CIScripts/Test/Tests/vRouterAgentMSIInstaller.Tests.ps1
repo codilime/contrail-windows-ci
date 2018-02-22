@@ -24,7 +24,7 @@ Describe "vRouter Agent MSI installer" {
 
         Uninstall-Agent -Session $Session
         Eventually {
-            Get-AgentServiceStatus -Session $Session | Should Throw
+            Get-AgentServiceStatus -Session $Session | Should BeNullOrEmpty
         } -Duration 3
     }
 
@@ -53,6 +53,6 @@ Describe "vRouter Agent MSI installer" {
     }
 
     AfterEach {
-        # Clear-TestConfiguration -Session $Session -TestConfiguration $TestConf
+        Clear-TestConfiguration -Session $Session -TestConfiguration $TestConf
     }
 }
