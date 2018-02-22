@@ -29,7 +29,7 @@ class TestGetJobStats(unittest.TestCase):
                 'endTimeMillis': self.finished_at_millis,
             })
 
-            build = get_build_stats(build_url='http://localhost:8080/job/MyJob/1')
+            build = get_build_stats(job_name='MyJob', build_url='http://localhost:8080/job/MyJob/1')
             self.assertIsNotNone(build)
             self.assertIsInstance(build, Build)
             self.assertEqual(build.job_name, 'MyJob')
@@ -43,7 +43,7 @@ class TestGetJobStats(unittest.TestCase):
         with requests_mock.mock() as m:
             m.get('http://localhost:8080/job/MyJob/-1/wfapi/describe', status_code=404)
 
-            job = get_build_stats(build_url='http://localhost:8080/job/MyJob/-1')
+            job = get_build_stats(job_name='MyJob', build_url='http://localhost:8080/job/MyJob/-1')
             self.assertIsNone(job)
 
     def test_get_job_stats_returns_job_with_failure(self):
@@ -55,7 +55,7 @@ class TestGetJobStats(unittest.TestCase):
                 'endTimeMillis': self.finished_at_millis,
             })
 
-            job = get_build_stats(build_url='http://localhost:8080/job/MyJob/1')
+            job = get_build_stats(job_name='MyJob', build_url='http://localhost:8080/job/MyJob/1')
             self.assertEqual(job.status, 'FAILURE')
 
 
@@ -91,7 +91,7 @@ class TestCollectAndPushBuildStats(unittest.TestCase):
                 'endTimeMillis': finished_at_millis,
             })
 
-            collect_and_push_build_stats(build_url=build_url, db_session=self.session)
+            collect_and_push_build_stats(job_name='MyJob', build_url=build_url, db_session=self.session)
 
         build_count = self.session.query(Build).count()
         self.assertEqual(build_count, 1)
