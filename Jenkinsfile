@@ -31,11 +31,34 @@ pipeline {
                     mgmtNetwork = env.TESTENV_MGMT_NETWORK
                 }
 
-                // If not using `Pipeline script from SCM`, specify the branch manually:
-                // git branch: 'development', url: 'https://github.com/codilime/contrail-windows-ci/'
-
                 stash name: "CIScripts", includes: "CIScripts/**"
-                stash name: "ansible", includes: "ansible/**"
+                stash name: "StaticAnalysis", includes: "StaticAnalysis/**"
+                stash name: "Ansible", includes: "ansible/**"
+            }
+        }
+
+        stage ('Checkout projects') {
+            agent { label 'builder' }
+            environment {
+                DRIVER_SRC_PATH = "github.com/Juniper/contrail-windows-docker-driver"
+            }
+            steps {
+                deleteDir()
+                unstash "CIScripts"
+                powershell script: './CIScripts/Checkout.ps1'
+                stash name: "SourceCode", excludes: "CIScripts"
+            }
+        }
+
+        stage('Static analysis') {
+            // TODO: 'scriptanalyzer' is feature flag label; change to 'builder' after rollout done
+            agent { label 'scriptanalyzer' }
+            steps {
+                deleteDir()
+                unstash "StaticAnalysis"
+                unstash "SourceCode"
+                unstash "CIScripts"
+                powershell script: "./StaticAnalysis/Invoke-StaticAnalysisTools.ps1 -RootDir . -Config ${pwd()}/StaticAnalysis"
             }
         }
 
@@ -57,11 +80,11 @@ pipeline {
                 deleteDir()
 
                 unstash "CIScripts"
+                unstash "SourceCode"
 
                 powershell script: './CIScripts/BuildStage.ps1'
 
-                stash name: "WinArt", includes: "output/**/*"
-                //stash name: "buildLogs", includes: "logs/**"
+                stash name: "Artifacts", includes: "output/**/*"
             }
         }
 
@@ -89,7 +112,7 @@ pipeline {
                         // 'Cleanup' stage
                         node(label: 'ansible') {
                             deleteDir()
-                            unstash 'ansible'
+                            unstash 'Ansible'
 
                             inventoryFilePath = "${env.WORKSPACE}/ansible/vm.${env.BUILD_ID}"
 
@@ -103,7 +126,7 @@ pipeline {
                         // 'Provision' stage
                         node(label: 'ansible') {
                             deleteDir()
-                            unstash 'ansible'
+                            unstash 'Ansible'
 
                             inventoryFilePath = "${env.WORKSPACE}/ansible/vm.${env.BUILD_ID}"
 
@@ -120,7 +143,7 @@ pipeline {
                             deleteDir()
 
                             unstash 'CIScripts'
-                            unstash 'WinArt'
+                            unstash 'Artifacts'
 
                             env.TESTBED_ADDRESSES = testbeds.join(',')
 
@@ -145,8 +168,7 @@ pipeline {
         LOG_ROOT_DIR = "/var/www/logs/winci"
         BUILD_SPECIFIC_DIR = "${ZUUL_UUID}"
         JOB_SUBPATH = env.JOB_NAME.replaceAll("/", "/job/")
-        RAW_LOG_PATH = "job/${JOB_SUBPATH}/${BUILD_ID}/timestamps/?elapsed=HH:mm:ss&appendLog"
-        REMOTE_DST_FILE = "${LOG_ROOT_DIR}/${BUILD_SPECIFIC_DIR}/log.txt"
+        REMOTE_DST_FILE = "${LOG_ROOT_DIR}/${BUILD_SPECIFIC_DIR}/log.txt.gz"
     }
 
     post {
@@ -163,10 +185,9 @@ pipeline {
                         // unstash "buildLogs"
                         // TODO correct flags for rsync
                         sh "ssh ${LOG_SERVER_USER}@${LOG_SERVER} \"mkdir -p ${LOG_ROOT_DIR}/${BUILD_SPECIFIC_DIR}\""
-                        // The timestamps are not stored on disk as raw text, but in some encoded form,
-                        // so the easiest way to decode them is to use http path provided by the timestamper plugin.
-                        sh "curl --silent 'http://localhost:8080/$RAW_LOG_PATH' --output clean_log.txt"
-                        sh "rsync clean_log.txt ${LOG_SERVER_USER}@${LOG_SERVER}:${REMOTE_DST_FILE}"
+                        def tmpLogFilename = "clean_log.txt.gz"
+                        obtainLogFile(env.JOB_NAME, env.BUILD_ID, tmpLogFilename)
+                        sh "rsync $tmpLogFilename ${LOG_SERVER_USER}@${LOG_SERVER}:${REMOTE_DST_FILE}"
                         deleteDir()
                     }
                 }

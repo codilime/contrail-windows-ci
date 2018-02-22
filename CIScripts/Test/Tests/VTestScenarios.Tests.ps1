@@ -11,11 +11,11 @@ Param (
 
 . $ConfigFile
 $TestConf = Get-TestConfiguration
-
-$Session = New-PSSession -ComputerName $TestbedAddr -Credential (Get-VMCreds)
+$Session = New-PSSession -ComputerName $TestbedAddr -Credential (Get-TestbedCredential)
 
 Describe "vTest scenarios" {
     It "passes all vtest scenarios" {
+        $VMSwitchName = $TestConf.VMSwitchName
         {
             Invoke-Command -Session $Session -ScriptBlock {
                 Push-Location C:\Artifacts\
@@ -32,8 +32,6 @@ Describe "vTest scenarios" {
         Enable-VRouterExtension -Session $Session -AdapterName $TestConf.AdapterName `
             -VMSwitchName $TestConf.VMSwitchName `
             -ForwardingExtensionName $TestConf.ForwardingExtensionName
-
-        $VMSwitchName = $TestConf.VMSwitchName
     }
 
     AfterAll {
@@ -42,4 +40,3 @@ Describe "vTest scenarios" {
         Uninstall-Extension -Session $Session
     }
 }
-

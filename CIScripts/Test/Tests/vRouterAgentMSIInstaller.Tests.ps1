@@ -1,3 +1,7 @@
+# TODO: remove after these tests are fixed and TestConf is used again.
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseDeclaredVarsMoreThanAssignments",
+    "", Justification="Issue #804 from PSScriptAnalyzer GitHub")]
+
 Param (
     [Parameter(Mandatory=$true)] [string] $TestbedAddr,
     [Parameter(Mandatory=$true)] [string] $ConfigFile
@@ -12,7 +16,7 @@ Param (
 
 . $ConfigFile
 $TestConf = Get-TestConfiguration
-$Session = New-PSSession -ComputerName $TestbedAddr -Credential (Get-VMCreds)
+$Session = New-PSSession -ComputerName $TestbedAddr -Credential (Get-TestbedCredential)
 
 Describe "vRouter Agent MSI installer" {
 
