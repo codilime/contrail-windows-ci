@@ -2,7 +2,7 @@
 from common import get_mysql_connection_string, MysqlCommonArgumentParser
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from stats import collect_and_push_job_stats
+from stats import collect_and_push_build_stats
 
 
 def parse_args():
