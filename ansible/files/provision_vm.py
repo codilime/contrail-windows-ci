@@ -61,7 +61,6 @@ def get_args():
                         action='store',
                         help='Password to set for default user on Windows')
 
-
     args = parser.parse_args()
 
     if args.vm_username and not args.vm_password:
@@ -91,12 +90,12 @@ def provision_vm(api, args):
         raise ResourceNotFound('Choosing appropriate host and datastore failed')
 
     customization_data = {
-    'name': args.name,
-    'org': 'Contrail',
-    'username': args.vm_username,
-    'password': args.vm_password,
-    'data_ip_address': args.data_ip_address,
-    'data_netmask': args.data_netmask
+        'name': args.name,
+        'org': 'Contrail',
+        'username': args.vm_username,
+        'password': args.vm_password,
+        'data_ip_address': args.data_ip_address,
+        'data_netmask': args.data_netmask
     }
 
     config_spec = get_vm_config_spec(api, vm=template, networks=[args.mgmt_network, args.data_network])
