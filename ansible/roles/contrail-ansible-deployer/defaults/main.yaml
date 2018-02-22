@@ -1,26 +1,6 @@
 docker_provision_dir: "/tmp/contrail-ansible-deployer"
 cloud_orchestrator: openstack
 openstack_version: "ocata"
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
 contrail_version: "5.0.0-132"
 physical_interface: "ens224"
 docker_registry: "satellite.englab.juniper.net:5443"
-=======
-contrail_version: "5.0-20180217235852"
-physical_interface: "ens224"
-docker_registry:
-  fqdn: satellite.englab.juniper.net
-  port: 5443
->>>>>>> 58a7fd1... JW-1433 : Adding roles contrail-ansible-deployer, kolla-provision-dockers and
-=======
-contrail_version: "master-20180220070035"
-physical_interface: "ens224"
-docker_registry: "opencontrailnightly"
->>>>>>> be43def... JW-1433 : Minor refactor
-=======
-contrail_version: "5.0.0-132"
-physical_interface: "ens224"
-docker_registry: "satellite.englab.juniper.net:5443"
->>>>>>> c4638f0... JW-1433: Use 5.0.0-132 controller from local lab register as default

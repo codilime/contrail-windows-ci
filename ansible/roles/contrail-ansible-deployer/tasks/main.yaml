@@ -13,17 +13,6 @@
   with_items:
     - ansible
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-- name: Set registry port
-  set_fact:
-    registry_port: "{{ docker_registry.port }}"
-  when: registry_port is not defined
-
->>>>>>> 58a7fd1... JW-1433 : Adding roles contrail-ansible-deployer, kolla-provision-dockers and
-=======
->>>>>>> be43def... JW-1433 : Minor refactor
 - name: Copy hosts template
   template:
     src: inventory/hosts.j2
