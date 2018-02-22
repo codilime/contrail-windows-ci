@@ -217,7 +217,9 @@ function Get-AgentServiceStatus {
     Param ([Parameter(Mandatory = $true)] [PSSessionT] $Session)
     $Status = Invoke-Command -Session $Session -ScriptBlock {
         $Service = Get-Service "ContrailAgent" -ErrorAction SilentlyContinue
-        if($Service) {
+        # Satisfy Strict Mode - see if Get-Service returned anything before
+        # checking object Status field.
+        if(Test-Path Variable:Service) {
             return $Service.Status
         } else {
             return $null
