@@ -32,16 +32,11 @@ function Invoke-UntilSucceeds {
     do {
         try {
             $ReturnVal = & $ScriptBlock
-            if ($null -eq $ReturnVal) {
-                # Satisfy Strict Mode - check if $ReturnVal is $null before using it in a
-                # conditional expression.
-                throw New-Object -TypeName CITimeoutException("Did not evaluate to True." + 
-                    "Last return value encountered was null or empty.")
-            } elseif (-not $ReturnVal) {
-                throw New-Object -TypeName CITimeoutException("Did not evaluate to True." + 
-                "Last return value encountered was: $ReturnVal.")
-            } else {
+            if ($ReturnVal) {
                 break
+            } else {
+                throw New-Object -TypeName CITimeoutException("Did not evaluate to True." + 
+                    "Last return value encountered was: $ReturnVal.")
             }
         } catch {
             $LastException = $_.Exception

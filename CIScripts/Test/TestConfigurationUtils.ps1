@@ -216,16 +216,13 @@ function Disable-AgentService {
 function Get-AgentServiceStatus {
     Param ([Parameter(Mandatory = $true)] [PSSessionT] $Session)
     $Status = Invoke-Command -Session $Session -ScriptBlock {
-        $Service = Get-Service "ContrailAgent" -ErrorAction SilentlyContinue
-        if($null -eq $Service) {
-            # Satisfy Strict Mode - check if $Service is $null before
-            # referencing its field.
-            return $null
-        } else {
-            return $Service.Status
-        }
+        (Get-Service "ContrailAgent").Status
     }
-    return $Status.Value
+    if($Status) {
+        return $Status.Value
+    } else {
+        return $null
+    }
 }
 
 function Assert-IsAgentServiceEnabled {
