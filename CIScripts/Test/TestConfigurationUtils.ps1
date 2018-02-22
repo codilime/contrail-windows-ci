@@ -219,9 +219,12 @@ function Get-AgentServiceStatus {
         $Service = Get-Service "ContrailAgent" -ErrorAction SilentlyContinue
         # Satisfy Strict Mode - see if Get-Service returned anything before
         # checking object Status field.
+        Write-Host "a1"
         if(Test-Path Variable:Service) {
+            Write-Host "a2"
             return $Service.Status
         } else {
+            Write-Host "a3"
             return $null
         }
     }
