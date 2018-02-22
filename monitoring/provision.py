@@ -1,6 +1,4 @@
 #!/usr/bin/env python3
-import argparse
-import getpass
 from common import get_mysql_connection_string, MysqlCommonArgumentParser
 from sqlalchemy import create_engine
 from database import MonitoringBase
@@ -18,11 +16,12 @@ def provision_database(connection_string, model):
 
 def main():
     args = parse_args()
-    connection_string = get_mysql_connection_string(host=args.host, username=args.username,
-                                                    password=args.password, database=args.database)
+    connection_string = get_mysql_connection_string(host=args.mysql_host,
+                                                    username=args.mysql_username,
+                                                    password=args.mysql_password,
+                                                    database=args.mysql_database)
     provision_database(connection_string, model=MonitoringBase)
 
 
 if __name__ == '__main__':
     main()
-
