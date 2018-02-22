@@ -31,9 +31,15 @@ function Invoke-UntilSucceeds {
     $ReturnVal = $null
     do {
         try {
-            $ReturnVal = & $ScriptBlock
-            if ($ReturnVal) {
-                break
+            try {
+                $ReturnVal = & $ScriptBlock
+            } catch [PropertyNotFoundException] {
+                $ReturnVal = $null
+            }
+            if (Test-Path Variable:ReturnVal) {
+                if ($ReturnVal) {
+                    break
+                }
             } else {
                 throw New-Object -TypeName CITimeoutException("Did not evaluate to True." + 
                     "Last return value encountered was: $ReturnVal.")
