@@ -23,7 +23,7 @@ def main():
     session_factory.configure(bind=engine)
     session = session_factory()
 
-    collect_and_push_job_stats(job_name=args.job_name, build_url=args.build_url, db_session=session)
+    collect_and_push_build_stats(job_name=args.job_name, build_url=args.build_url, db_session=session)
 
 
 if __name__ == '__main__':
