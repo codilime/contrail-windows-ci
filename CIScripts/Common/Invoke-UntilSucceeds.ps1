@@ -40,10 +40,9 @@ function Invoke-UntilSucceeds {
                 if ($ReturnVal) {
                     break
                 }
-            } else {
-                throw New-Object -TypeName CITimeoutException("Did not evaluate to True." + 
-                    "Last return value encountered was: $ReturnVal.")
             }
+            throw New-Object -TypeName CITimeoutException("Did not evaluate to True." + 
+                "Last return value encountered was: $ReturnVal.")
         } catch {
             $LastException = $_.Exception
             Start-Sleep -s $Interval
