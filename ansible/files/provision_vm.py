@@ -61,10 +61,10 @@ def get_args():
                         action='store',
                         help='Password to set for default user on Windows')
 
-    parser.add_argument('--customize',
+    parser.add_argument('--no-customize',
                         required=False,
-                        default=True,
-                        action='store_false',
+                        default=False,
+                        action='store_true',
                         help='If set to True customization of operating system will happen')
 
     args = parser.parse_args()
@@ -95,7 +95,9 @@ def provision_vm(api, args):
     if not host or not datastore:
         raise ResourceNotFound('Choosing appropriate host and datastore failed')
 
-    if args.customize:
+    if args.no_customize:
+        customization_spec = None
+    else:
         customization_data = {
         'name': args.name,
         'org': 'Contrail',
@@ -105,8 +107,6 @@ def provision_vm(api, args):
         'data_netmask': args.data_netmask
         }
         customization_spec = get_vm_customization_spec(template, **customization_data)
-    else:
-        customization_spec = None
 
     config_spec = get_vm_config_spec(api, vm=template, networks=[args.mgmt_network, args.data_network])
     relocate_spec = get_vm_relocate_spec(api.cluster, host, datastore)
