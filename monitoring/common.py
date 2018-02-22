@@ -20,7 +20,7 @@ class MysqlCommonArgumentParser(object):
         args = self._parser.parse_args()
         if not args.mysql_password:
             prompt = 'Enter password (for MySQL user {}): '.format(args.mysql_username)
-            args.password = getpass.getpass(prompt=prompt)
+            args.mysql_password = getpass.getpass(prompt=prompt)
         return args
 
 def get_mysql_connection_string(host, username, password, database):
