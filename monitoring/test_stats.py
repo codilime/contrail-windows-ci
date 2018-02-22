@@ -36,9 +36,9 @@ class TestGetJobStats(unittest.TestCase):
             self.assertEqual(build.job_name, 'MyJob')
             self.assertEqual(build.build_id, 1)
             self.assertEqual(build.build_url, 'http://localhost:8080/job/MyJob/1')
-            self.assertEqual(build.finished_at, int(self.finished_at.timestamp()))
+            self.assertEqual(build.finished_at_secs, int(self.finished_at.timestamp()))
             self.assertEqual(build.status, 'SUCCESS')
-            self.assertEqual(build.duration, 1000)
+            self.assertEqual(build.duration_millis, 1000)
 
     def test_get_job_stats_returns_none_for_wrong_id(self):
         with requests_mock.mock() as m:
@@ -100,9 +100,9 @@ class TestCollectAndPushBuildStats(unittest.TestCase):
         self.assertEqual(build.job_name, 'MyJob')
         self.assertEqual(build.build_id, 1)
         self.assertEqual(build.build_url, 'http://localhost:8080/job/MyJob/1')
-        self.assertEqual(build.finished_at, int(finished_at.timestamp()))
+        self.assertEqual(build.finished_at_secs, int(finished_at.timestamp()))
         self.assertEqual(build.status, 'SUCCESS')
-        self.assertEqual(build.duration, 1000)
+        self.assertEqual(build.duration_millis, 1000)
 
 
 if __name__ == '__main__':

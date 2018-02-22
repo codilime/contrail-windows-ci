@@ -9,9 +9,9 @@ def get_job_from_resp(job_name, build_url, resp):
     return Build(job_name=job_name,
                  build_id=resp['id'],
                  build_url=build_url,
-                 finished_at=timestamp,
+                 finished_at_secs=timestamp,
                  status=resp['status'],
-                 duration=resp['durationMillis'])
+                 duration_millis=resp['durationMillis'])
 
 
 def get_build_stats_endpoint(build_url):
