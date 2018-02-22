@@ -217,15 +217,12 @@ function Get-AgentServiceStatus {
     Param ([Parameter(Mandatory = $true)] [PSSessionT] $Session)
     $Status = Invoke-Command -Session $Session -ScriptBlock {
         $Service = Get-Service "ContrailAgent" -ErrorAction SilentlyContinue
-        # Satisfy Strict Mode - see if Get-Service returned anything before
-        # checking object Status field.
-        Write-Host "a1"
-        if(Test-Path Variable:Service) {
-            Write-Host "a2"
-            return $Service.Status
-        } else {
-            Write-Host "a3"
+        if($Service -eq $null) {
+            # Satisfy Strict Mode - check if $Service is $null before
+            # referencing its field.
             return $null
+        } else {
+            return $Service.Status
         }
     }
     return $Status.Value

@@ -32,24 +32,18 @@ function Invoke-UntilSucceeds {
     do {
         try {
             $ReturnVal = & $ScriptBlock
-            Write-Host "b1"
-            if (Test-Path Variable:ReturnVal) {
-                Write-Host "b2"
-                if ($ReturnVal) {
-                    Write-Host "b3"
-                    break
-                } else {
-                    Write-Host "b4"
-                    throw New-Object -TypeName CITimeoutException("Did not evaluate to True." + 
-                        "Last return value encountered was: $ReturnVal.")
-                }
-            } else {
-                Write-Host "b5"
+            if ($ReturnVal -eq $null) {
+                # Satisfy Strict Mode - check if $ReturnVal is $null before using it in a
+                # conditional expression.
                 throw New-Object -TypeName CITimeoutException("Did not evaluate to True." + 
                     "Last return value encountered was null or empty.")
+            } elseif (-not $ReturnVal) {
+                throw New-Object -TypeName CITimeoutException("Did not evaluate to True." + 
+                "Last return value encountered was: $ReturnVal.")
+            } else {
+                break
             }
         } catch {
-            Write-Host "b6"
             $LastException = $_.Exception
             Start-Sleep -s $Interval
         }
