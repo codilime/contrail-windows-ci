@@ -22,10 +22,10 @@
 - `provision.py` script deploys schema on provided database
 
     ```
-    $ python3 provision.py --host MYSQL_HOST \
-        --username MYSQL_USER \
-        --password MYSQL_PASSWORD \
-        --database MYSQL_DATABASE
+    $ python3 provision.py --mysql-host MYSQL_HOST \
+        --mysql-username MYSQL_USER \
+        --mysql-password MYSQL_PASSWORD \
+        --mysql-database MYSQL_DATABASE
     ```
 
 ### Running tests

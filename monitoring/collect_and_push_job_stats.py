@@ -1,30 +1,15 @@
-#!/usr/bin/env python
-import argparse
-import getpass
+#!/usr/bin/env python3
+from common import get_mysql_connection_string, MysqlCommonArgumentParser
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from stats import collect_and_push_job_stats
 
 
 def parse_args():
-    parser = argparse.ArgumentParser()
+    parser = MysqlCommonArgumentParser()
     parser.add_argument('--job-name', required=True)
     parser.add_argument('--build-url', required=True)
-    parser.add_argument('--mysql-host', required=True)
-    parser.add_argument('--mysql-username', required=True)
-    parser.add_argument('--mysql-password', required=False)
-    parser.add_argument('--mysql-database', required=True)
-    args = parser.parse_args()
-
-    if not args.mysql_password:
-        prompt = 'Enter password (for MySQL user {}): '.format(args.mysql_username)
-        args.password = getpass.getpass(prompt=prompt)
-
-    return args
-
-
-def get_mysql_connection_string(host, username, password, database):
-    return 'mysql://{}:{}@{}/{}'.format(username, password, host, database)
+    return parser.parse_args()
 
 
 def main():

@@ -1,24 +1,14 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import argparse
 import getpass
+from common import get_mysql_connection_string, MysqlCommonArgumentParser
 from sqlalchemy import create_engine
 from database import MonitoringBase
 
 
 def parse_args():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--host', required=True)
-    parser.add_argument('--username', required=True)
-    parser.add_argument('--password', required=False)
-    parser.add_argument('--database', required=True)
-    args = parser.parse_args()
-    if not args.password:
-        args.password = getpass.getpass(prompt='Enter password: ')
-    return args
-
-
-def get_mysql_connection_string(host, username, password, database):
-    return 'mysql://{}:{}@{}/{}'.format(username, password, host, database)
+    parser = MysqlCommonArgumentParser()
+    return parser.parse_args()
 
 
 def provision_database(connection_string, model):
