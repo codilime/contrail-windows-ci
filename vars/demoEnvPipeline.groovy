@@ -1,4 +1,4 @@
-def call(playbookToRun) {
+def call(actionToRun) {
     def vmwareConfig
     def demoEnvName
     def demoEnvFolder
@@ -34,12 +34,7 @@ def call(playbookToRun) {
             }
             stage("Run Ansible") {
                 steps {
-                    dir('ansible') {
-                        ansiblePlaybook inventory: 'inventory',
-                                        playbook: playbookToRun,
-                                        extraVars: vmwareConfig,
-                                        extras: '-e @vmware-vm.vars'
-                    }
+                    actionToRun(vmwareConfig, inventoryFilePath)
                 }
             }
         }

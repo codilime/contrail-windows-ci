@@ -1,4 +1,4 @@
-def call(vmwareConfig) {
+def call(vmwareConfig, inventoryFilePath) {
     dir('ansible') {
         ansiblePlaybook inventory: 'inventory',
                         playbook: 'vmware-destroy-testenv.yml',
