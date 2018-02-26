@@ -149,11 +149,7 @@ pipeline {
                             provisionTestEnv(vmwareConfig)
                             testbeds = parseTestbedAddresses(inventoryFilePath)
                             controllerIP = parseControllerAddress(inventoryFilePath)
-                            echo "T: ${testbeds} C: ${controllerIP}"
-                            sh 'mkdir ansible/project-config'
-                            
                             provisionContrailController(vmwareConfig, controllerIP)
-                            unstash "ansible"
                         }
 
                         // 'Deploy' stage
