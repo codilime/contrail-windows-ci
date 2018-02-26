@@ -1,6 +1,5 @@
 def call(String filePath) {
     def contents = readFile(filePath)
-    println contents
 
     def testbeds = contents.split('\n').findAll { line ->
         line.matches('^.*-wintb[0-9]{2};.*$')
