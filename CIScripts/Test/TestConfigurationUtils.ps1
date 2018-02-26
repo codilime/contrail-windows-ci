@@ -218,7 +218,7 @@ function Get-AgentServiceStatus {
     $Status = Invoke-Command -Session $Session -ScriptBlock {
         (Get-Service "ContrailAgent" -ErrorAction SilentlyContinue).Status
     }
-    if($Status) {
+    if ($Status) {
         return $Status.Value
     } else {
         return $null

@@ -42,8 +42,7 @@ function Invoke-TestScenarios {
     })
 
     $TestsBlacklist = @(
-        # Requires Docker Driver
-        "vRouterAgentService.Tests.ps1"
+        # Put filenames of blacklisted tests here.
     )
 
     $TotalFailedCount = 0
