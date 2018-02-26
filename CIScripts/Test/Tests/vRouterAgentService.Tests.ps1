@@ -108,12 +108,14 @@ Describe "vRouter Agent service" {
     }
 
     BeforeAll {
+        Install-DockerDriver -Session $Session
         Install-Agent -Session $Session
         Install-Extension -Session $Session
         Install-Utils -Session $Session
     }
 
     AfterAll {
+        Uninstall-DockerDriver -Session $Session
         Uninstall-Agent -Session $Session
         Uninstall-Extension -Session $Session
         Uninstall-Utils -Session $Session

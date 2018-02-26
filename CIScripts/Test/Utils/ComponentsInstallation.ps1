@@ -62,3 +62,24 @@ function Uninstall-Utils {
     Write-Host "Uninstalling vRouter utility tools"
     Invoke-MsiExec -Uninstall -Session $Session -Path "C:\Artifacts\utils.msi"
 }
+
+function Install-Utils {
+    Param ([Parameter(Mandatory = $true)] [PSSessionT] $Session)
+
+    Write-Host "Installing vRouter utility tools"
+    Invoke-MsiExec -Session $Session -Path "C:\Artifacts\utils.msi"
+}
+
+function Install-DockerDriver {
+    Param ([Parameter(Mandatory = $true)] [PSSessionT] $Session)
+
+    Write-Host "Installing Docker Driver"
+    Invoke-MsiExec -Session $Session -Path "C:\Artifacts\docker-driver.msi"
+}
+
+function Uninstall-DockerDriver {
+    Param ([Parameter(Mandatory = $true)] [PSSessionT] $Session)
+
+    Write-Host "Uninstalling Docker Driver"
+    Invoke-MsiExec -Uninstall -Session $Session -Path "C:\Artifacts\docker-driver.msi"
+}
