@@ -96,9 +96,7 @@ Describe "vRouter Agent service" {
     }
 
     BeforeEach {
-        Enable-VRouterExtension -Session $Session -AdapterName $TestConf.AdapterName `
-            -VMSwitchName $TestConf.VMSwitchName `
-            -ForwardingExtensionName $TestConf.ForwardingExtensionName
+        Initialize-DriverAndExtension -Session $Session -TestConfiguration $TestConf
         New-AgentConfigFile -Session $Session -TestConfiguration $TestConf
     }
 
