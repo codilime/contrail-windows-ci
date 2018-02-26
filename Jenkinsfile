@@ -132,10 +132,8 @@ pipeline {
                                            mgmtNetwork, testNetwork,
                                            env.TESTBED_TEMPLATE, env.CONTROLLER_TEMPLATE)
 
-                            provisionTestEnv(vmwareConfig)
+                            provisionTestEnv(vmwareConfig, inventoryFilePath)
                             testbeds = parseTestbedAddresses(inventoryFilePath)
-                            controllerIP = parseControllerAddress(inventoryFilePath)
-                            provisionContrailController(vmwareConfig, controllerIP)
                         }
 
                         // 'Deploy' stage
