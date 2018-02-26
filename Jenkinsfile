@@ -132,7 +132,7 @@ pipeline {
                                            mgmtNetwork, testNetwork,
                                            env.TESTBED_TEMPLATE, env.CONTROLLER_TEMPLATE)
 
-                            destroyTestEnv(vmwareConfig)
+                            destroyTestEnv(vmwareConfig, inventoryFilePath)
                         }
 
                         // 'Provision' stage
