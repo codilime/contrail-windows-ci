@@ -34,7 +34,9 @@ def call(actionToRun) {
             }
             stage("Run Ansible") {
                 steps {
-                    actionToRun(vmwareConfig, inventoryFilePath)
+                    script {
+                        actionToRun(vmwareConfig, inventoryFilePath)
+                    }
                 }
             }
         }
