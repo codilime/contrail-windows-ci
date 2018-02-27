@@ -111,6 +111,8 @@ pipeline {
                 TEST_CONFIGURATION_FILE = "GetTestConfigurationJuni.ps1"
                 TESTBED = credentials('win-testbed')
                 ARTIFACTS_DIR = "output"
+                TESTBED_TEMPLATE = "Template-testbed-201802130923"
+                CONTROLLER_TEMPLATE = "Template-CentOS-7.4"
             }
 
             steps {
