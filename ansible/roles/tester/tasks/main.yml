@@ -35,10 +35,3 @@
     -Value "{{ (((trusted_hosts.stdout | trim()).split(',') | reject('equalto', '') | list()) + ['172.17.0.*']) | join(',') }}"
     -Force
   when: not (trusted_hosts.stdout | search("172.17.0.*"))
-
-- name: Set Testbeds from VM-Network as TrustedHosts
-  win_shell: >
-    Set-Item WSMan:\localhost\Client\TrustedHosts
-    -Value "{{ (((trusted_hosts.stdout | trim()).split(',') | reject('equalto', '') | list()) + ['10.84.12.*']) | join(',') }}"
-    -Force
-  when: not (trusted_hosts.stdout | search("10.84.12.*"))
