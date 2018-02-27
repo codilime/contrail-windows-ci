@@ -43,6 +43,7 @@ function Invoke-TestScenarios {
 
     $TestsBlacklist = @(
         # Put filenames of blacklisted tests here.
+        "vRouterAgentService.Tests.ps1"
     )
 
     $TotalFailedCount = 0
