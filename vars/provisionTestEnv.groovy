@@ -7,6 +7,6 @@ def call(vmwareConfig, inventoryFilePath) {
         controllerIP = parseControllerAddress(inventoryFilePath)
         ansiblePlaybook playbook: 'controllerProvision.yml',
                         extraVars: controllerIP,
-                        extras: '-e @vmware-vm.vars -vvv'
+                        extras: '-e @vmware-vm.vars'
     }
 }
