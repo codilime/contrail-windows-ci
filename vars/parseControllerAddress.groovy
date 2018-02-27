@@ -9,7 +9,7 @@ def call(String filePath) {
         line.split(';')[1]
     }
 
-    def properAddress = addresses[0].split(',').find { address -> address.matches('^10.84.*$') }
+    def properAddress = addresses[0].split(',').find { address -> address.matches('^172.*$') || address.matches('^10.84.*$') }
     def controllerAddress = [controllerIP: properAddress]
     return controllerAddress
 }
