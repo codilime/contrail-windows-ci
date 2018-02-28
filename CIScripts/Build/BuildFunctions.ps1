@@ -364,6 +364,8 @@ function Invoke-AgentTestsBuild {
         }
         $TestsBuildCommand = "scons -j 4 {0} {1}" -f "$BuildModeOption", "$TestsString"
 
+        [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSUseDeclaredVarsMoreThanAssignments",
+            "", Justification="Env variable is used by another executable")]
         $Env:BUILD_ONLY = "1"
         Invoke-NativeCommand -ScriptBlock {
             Invoke-Expression $TestsBuildCommand | Tee-Object -FilePath $LogsPath/build_agent_tests.log
