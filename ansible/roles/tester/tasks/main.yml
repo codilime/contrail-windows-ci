@@ -29,7 +29,7 @@
   win_shell: (Get-Item WSMan:\localhost\Client\TrustedHosts).Value
   register: trusted_hosts
 
-- name: Set Testbeds from VLAN_501_Management as TrustedHosts
+- name: Set Testbeds as TrustedHosts
   win_shell: >
     Set-Item WSMan:\localhost\Client\TrustedHosts
     -Value "{{ (((trusted_hosts.stdout | trim()).split(',') | reject('equalto', '') | list()) + ['172.17.0.*']) | join(',') }}"

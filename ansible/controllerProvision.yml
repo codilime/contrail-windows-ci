@@ -7,9 +7,6 @@
     add_host:
       name: masterController
       ansible_host: "{{ controllerIP }}"
-      ansible_user: root
-      ansible_ssh_pass: contrail123
-      ansible_ssh_extra_args: '-o UserKnownHostsFile=/dev/null'
       groups: controller
 
 - hosts: masterController
