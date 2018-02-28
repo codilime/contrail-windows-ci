@@ -38,7 +38,7 @@ def call(playbookToRun) {
                         ansiblePlaybook inventory: 'inventory',
                                         playbook: playbookToRun,
                                         extraVars: vmwareConfig,
-                                        extras: '-e @vmware-vm.vars -vvv'
+                                        extras: '-e @vmware-vm.vars'
                     }
                 }
             }
