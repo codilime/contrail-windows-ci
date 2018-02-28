@@ -134,7 +134,7 @@ pipeline {
                                            mgmtNetwork, testNetwork,
                                            env.TESTBED_TEMPLATE, env.CONTROLLER_TEMPLATE)
 
-                            destroyTestEnv(vmwareConfig, inventoryFilePath)
+                            destroyTestEnv(vmwareConfig)
                         }
 
                         // 'Provision' stage
@@ -148,7 +148,7 @@ pipeline {
                                            mgmtNetwork, testNetwork,
                                            env.TESTBED_TEMPLATE, env.CONTROLLER_TEMPLATE)
 
-                            provisionTestEnv(vmwareConfig, inventoryFilePath)
+                            provisionTestEnv(vmwareConfig)
                             testbeds = parseTestbedAddresses(inventoryFilePath)
                         }
 
